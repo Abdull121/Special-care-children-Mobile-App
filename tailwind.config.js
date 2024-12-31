@@ -16,10 +16,13 @@ module.exports = {
         black: {
           Default: "#000000",
         },
+        gary: {
+          Default: "#A4A6A6",
+        },
       },
       fontFamily: {
-        psemibold: ["Poppins-SemiBold"],
-        pregular: ["Poppins-Regular"],
+        psemibold: ["Poppins-SemiBold", "sans-serif"],
+        pregular: ["Poppins-Regular", "sans-serif"],
         heading: ["Anton-Regular"],
       },
     },
