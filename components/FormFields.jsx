@@ -13,6 +13,7 @@ const FormFields = ({
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [focus, setFocus] = useState(false);
 
   return (
     <View style={tw`mt-7 ${otherStyle}`}>
@@ -27,7 +28,10 @@ const FormFields = ({
         {title}
       </Text>
       <View
-        style={tw`w-full h-12 px-2  border-2 border-[#A4A6A6] rounded-[4px] items-center flex-row`}
+        style={tw`w-full h-12 px-2  border-2 border-[#A4A6A6] rounded-[4px] items-center flex-row
+        ${focus ? "border-[#0166FC]" : "border-[#A4A6A6]"}
+        
+        `}
       >
         <TextInput
           style={{
@@ -44,6 +48,8 @@ const FormFields = ({
           onChangeText={handleChangeText}
           secureTextEntry={title === "Password" && !showPassword} // Ensure `showPassword` is toggled correctly.
           {...props}
+          onFocus={() => setFocus(true)}
+          onBlur={() => setFocus(false)}
         />
         {title === "Password" && (
           <TouchableOpacity

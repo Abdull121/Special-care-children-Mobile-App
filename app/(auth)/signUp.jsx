@@ -83,7 +83,7 @@ const SignUp = () => {
                   style={{ width: 20, height: 20, marginRight: 10 }}
                 />
                 <Text className="text-center text-black-Default text-[14px] font-psemibold">
-                  SignUp with Google
+                  Sign Up with Google
                 </Text>
               </View>
             }
