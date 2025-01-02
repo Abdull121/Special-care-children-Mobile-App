@@ -25,14 +25,14 @@ const CustomButton = ({
     >
       <Text className={`${textStyles}`}>{title}</Text>
 
-      {isLoading && (
+      {/* {isLoading && (
         <ActivityIndicator
           style={tw`ml-2`}
           animating={isLoading}
           color="#0000ff"
           size="small"
         />
-      )}
+      )} */}
     </TouchableOpacity>
   );
 };

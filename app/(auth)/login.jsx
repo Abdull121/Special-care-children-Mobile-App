@@ -44,7 +44,7 @@ const login = () => {
             otherStyle="mt-7"
           />
           <View className="mt-4 mr-1 flex-row justify-end">
-            <Link href="/signUp" className="text-blue-Default underline">
+            <Link href="/resetPassword" className="text-blue-Default underline">
               Forgot Password?
             </Link>
           </View>

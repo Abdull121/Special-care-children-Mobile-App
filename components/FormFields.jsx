@@ -14,16 +14,17 @@ const FormFields = ({
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [focus, setFocus] = useState(false);
+  // console.log(title);
 
   return (
     <View style={tw`mt-7 ${otherStyle}`}>
       <Text
         className="font-psemibold text-[14px] line-hight-[24px]"
-        // style={{
-        //   fontFamily: "Poppins-SemiBold",
-        //   fontSize: 14,
-        //   lineHeight: 24,
-        // }}
+      // style={{
+      //   fontFamily: "Poppins-SemiBold",
+      //   fontSize: 14,
+      //   lineHeight: 24,
+      // }}
       >
         {title}
       </Text>
@@ -46,12 +47,14 @@ const FormFields = ({
           placeholder={placeholder}
           placeholderTextColor="#A4A6A6"
           onChangeText={handleChangeText}
-          secureTextEntry={title === "Password" && !showPassword} // Ensure `showPassword` is toggled correctly.
+          secureTextEntry={
+            (title === "Password" || title === "confirm password") && !showPassword
+          } // Ensure `showPassword` is toggled correctly.
           {...props}
           onFocus={() => setFocus(true)}
           onBlur={() => setFocus(false)}
         />
-        {title === "Password" && (
+        {(title === "Password" || title === "confirm password") && (
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
             activeOpacity={0.6}
