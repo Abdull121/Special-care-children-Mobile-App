@@ -11,7 +11,7 @@ const ResetPassword = () => {
   // console.log(form.email);
 
   return (
-    <SafeAreaView>
+    <SafeAreaView className="bg-white">
       <ScrollView contentContainerStyle={{ height: "100%" }}>
         <View className="w-full px-6 min-h-[75vh] items-start justify-center ">
           <Text className="font-psemibold text-blue-Default text-[20px]">

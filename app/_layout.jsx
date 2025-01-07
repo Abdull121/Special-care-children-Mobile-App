@@ -29,6 +29,7 @@ const RootLayout = () => {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="(forgetPassword)" options={{ headerShown: false }} />
+      <Stack.Screen name="(userProfile)" options={{ headerShown: false }} />
     </Stack>
   );
   // <StatusBar backgroundColor= "#000000" style="light" />

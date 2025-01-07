@@ -14,7 +14,7 @@ const login = () => {
     password: "",
   });
   return (
-    <SafeAreaView className="h-full px-4">
+    <SafeAreaView className="h-full px-4 bg-white">
       <ScrollView>
         <View className="w-full justify-center mt-6 min-h-[85vh]">
           <Text className="font-heading text-primary text-[34px] mb-[35px] text-center">
@@ -49,7 +49,7 @@ const login = () => {
             </Link>
           </View>
           <CustomButton
-            handlePress={() => {}}
+            handlePress={() => { }}
             title="Login"
             textStyles="text-center text-white text-[14px] font-psemibold "
             container="mt-7 w-full h-12 rounded-[4px] bg-[#0166FC]"
@@ -65,7 +65,7 @@ const login = () => {
             <View className="flex-1 h-[1px] bg-gray-300" />
           </View>
           <CustomButton
-            handlePress={() => {}}
+            handlePress={() => { }}
             title={
               <View className="flex-row items-center justify-center">
                 <Image

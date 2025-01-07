@@ -32,15 +32,17 @@ const VerificationScreen = () => {
     setFocus(newFocus);
   };
 
-  const handleBlur = (index) => {
-    const newFocus = [...focus];
-    newFocus[index] = false;
-    setFocus(newFocus);
-  };
+  // const handleBlur = (index) => {
+  //   const newFocus = [...focus];
+  //   newFocus[index] = false;
+  //   setFocus(newFocus);
+  // };
 
-  const handleSubmit = () => {
-    alert(`Verification Code: ${code.join("")}`);
-  };
+
+
+  // const handleSubmit = () => {
+  //   alert(`Verification Code: ${code.join("")}`);
+  // };
 
   return (
     <SafeAreaView className="bg-white flex-1">

@@ -15,10 +15,15 @@ const SignUp = () => {
     password: "",
   });
 
-  const onSubmit = () => {};
+  const onSubmit = () => { };
   return (
-    <SafeAreaView className="h-full px-4">
-      <ScrollView>
+    <SafeAreaView className="h-full px-4 py-2 bg-white">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
+      // Disable horizontal scroll indicator
+      >
+
         <View className="w-full justify-center mt-6 min-h-[85vh]">
           <Text className="font-heading text-primary text-[34px] mb-[35px] text-center">
             SPECIAL CARE
@@ -75,7 +80,7 @@ const SignUp = () => {
             <View className="flex-1 h-[1px] bg-gray-300" />
           </View>
           <CustomButton
-            handlePress={() => {}}
+            handlePress={() => { }}
             title={
               <View className="flex-row items-center justify-center">
                 <Image

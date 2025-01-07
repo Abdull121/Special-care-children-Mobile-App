@@ -32,11 +32,11 @@ export default function Index() {
                 emotional needs.
               </Text>
               <CustomButton
-                handlePress={() => router.push("/login")}
+                handlePress={() => router.push("/childProfile")}
                 title="Get Started"
                 textStyles="text-center text-black-Default text-[14px] font-psemibold "
                 container="mt-[41px] w-[231px] h-[42px] rounded-[4px] bg-white"
-                //use twrn in container
+              //use twrn in container
               />
             </View>
           </ScrollView>
