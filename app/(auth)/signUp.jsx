@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Link } from "expo-router";
 import CustomButton from "../../components/CustomButton";
 import icons from "../../constants/icons";
+import authService from '../../Appwrite/auth';
 
 const SignUp = () => {
   const [form, setForm] = useState({
@@ -15,7 +16,28 @@ const SignUp = () => {
     password: "",
   });
 
-  const onSubmit = () => { };
+  const handleSubmit = async () => {
+
+    try {
+      console.log(form)
+      const response = await authService.createAccount(form);
+      if (response) {
+        console.log("Account created successfully")
+
+      }
+      else {
+        console.log("failed")
+      }
+
+    }
+
+
+    catch (error) {
+      console.log(error)
+    }
+
+
+  };
   return (
     <SafeAreaView className="h-full px-4 py-2 bg-white">
       <ScrollView
@@ -62,9 +84,9 @@ const SignUp = () => {
           />
 
           <CustomButton
-            handlePress={() => {
-              onSubmit;
-            }}
+            handlePress={() =>
+              handleSubmit()
+            }
             title="Sign Up"
             textStyles="text-center text-white text-[14px] font-psemibold "
             container="mt-7 w-full h-12 rounded-[4px] bg-[#0166FC]"

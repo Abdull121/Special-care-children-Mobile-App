@@ -8,6 +8,8 @@ import CustomButton from "../components/CustomButton";
 import { Redirect, router } from "expo-router";
 
 export default function Index() {
+
+
   return (
     <>
       <ImageBackground
@@ -32,7 +34,7 @@ export default function Index() {
                 emotional needs.
               </Text>
               <CustomButton
-                handlePress={() => router.push("/childProfile")}
+                handlePress={() => router.push("/login")}
                 title="Get Started"
                 textStyles="text-center text-black-Default text-[14px] font-psemibold "
                 container="mt-[41px] w-[231px] h-[42px] rounded-[4px] bg-white"
@@ -43,12 +45,9 @@ export default function Index() {
         </SafeAreaView>
 
         <StatusBar backgroundColor="transparent" style="light" />
-        {/* <Image
-            className="absolute -bottom-safe-offset-14 right-0 w-[412px] h-[212px] border-2 "
-            source={images.bottomVector}
-            resizeMode="contain"
-          /> */}
+
       </ImageBackground>
+
     </>
   );
 }
