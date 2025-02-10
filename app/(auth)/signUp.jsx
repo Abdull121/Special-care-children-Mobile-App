@@ -1,13 +1,16 @@
-import { ScrollView, StyleSheet, Text, View, Image } from "react-native";
+import { ScrollView, Text, View, Image, Alert, ActivityIndicator } from "react-native";
 import React from "react";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FormFields from "../../components/FormFields";
 import { useState } from "react";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import CustomButton from "../../components/CustomButton";
 import icons from "../../constants/icons";
 import authService from '../../Appwrite/auth';
+
+
+
 
 const SignUp = () => {
   const [form, setForm] = useState({
@@ -16,13 +19,76 @@ const SignUp = () => {
     password: "",
   });
 
+  const [loading, setLoading] = useState(false); // State to manage the loading state
+
+
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password) => {
+    return password.length >= 8; // Example: Minimum 8 characters
+  };
+  const validateUserName = (username) => {
+    return (username ? true : false)
+  };
+
+
+
   const handleSubmit = async () => {
+    setErrors("")
+
+    setLoading(true);
+    const { name, email, password } = form;
+    let isValid = true;
+
+
+    if (!validateUserName(name)) {
+      setLoading(false);
+      setErrors((prev) => ({ ...prev, name: "Name is required" }));
+      isValid = false;
+    }
+    else {
+      setErrors((prev) => ({ ...prev, name: "" }));
+    }
+
+
+    if (!validateEmail(email)) {
+      setLoading(false);
+      setErrors((prev) => ({ ...prev, email: "Invalid email format" }));
+      isValid = false;
+    } else {
+      setErrors((prev) => ({ ...prev, email: "" }));
+    }
+
+    if (!validatePassword(password)) {
+      setLoading(false);
+      setErrors((prev) => ({
+        ...prev,
+        password: "Password must be at least 8 characters long",
+      }));
+      isValid = false;
+    } else {
+      setErrors((prev) => ({ ...prev, password: "" }));
+    }
+    if (!isValid) return;
+
+    // auth service
+
 
     try {
       console.log(form)
       const response = await authService.createAccount(form);
       if (response) {
         console.log("Account created successfully")
+        router.replace('/login')
 
       }
       else {
@@ -33,7 +99,17 @@ const SignUp = () => {
 
 
     catch (error) {
+      Alert.alert(
+        "Incorrect",
+        error.message || "Something went wrong. Please try again.",
+        [
+          { text: "OK", onPress: () => console.log("OK Pressed") }
+        ]
+      );
       console.log(error)
+    }
+    finally {
+      setLoading(false); // Reset loading state after completion
     }
 
 
@@ -65,6 +141,10 @@ const SignUp = () => {
             handleChangeText={(e) => setForm({ ...form, name: e })}
             otherStyle="mt-7"
           />
+          {errors.name ? (
+            <Text className="text-red-500 mt-1">{errors.name}</Text>
+          ) : null}
+
           <FormFields
             title="Email"
             placeholder="Enter your email"
@@ -74,6 +154,10 @@ const SignUp = () => {
             handleChangeText={(e) => setForm({ ...form, email: e })}
             otherStyle="mt-7"
           />
+          {errors.email ? (
+            <Text className="text-red-500 mt-1">{errors.email}</Text>
+          ) : null}
+
           <FormFields
             title="Password"
             placeholder="Enter your password"
@@ -82,12 +166,17 @@ const SignUp = () => {
             handleChangeText={(e) => setForm({ ...form, password: e })}
             otherStyle="mt-7"
           />
+          {errors.password ? (
+            <Text className="text-red-500 mt-1">{errors.password}</Text>
+          ) : null}
 
           <CustomButton
-            handlePress={() =>
-              handleSubmit()
-            }
-            title="Sign Up"
+            handlePress={handleSubmit}
+            title={loading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              "Sign Up"
+            )}
             textStyles="text-center text-white text-[14px] font-psemibold "
             container="mt-7 w-full h-12 rounded-[4px] bg-[#0166FC]"
           />

@@ -28,7 +28,7 @@ const login = () => {
   };
 
   const validatePassword = (password) => {
-    return password.length >= 8; // Example: Minimum 6 characters
+    return password.length >= 8; // Example: Minimum 8 characters
   };
 
   const handleSubmit = async () => {
@@ -60,6 +60,8 @@ const login = () => {
     }
 
     if (!isValid) return;
+
+    //auth service
 
     try {
       const session = await authService.login(form);

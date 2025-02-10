@@ -114,6 +114,7 @@ export class AuthService {
         }
     }
 
+
     async googleAuth() {
         try {
             this.account.createOAuth2Session(
