@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, ScrollView, Alert } from "react-native";
+import { View, Text, SafeAreaView, ScrollView, Alert, ActivityIndicator } from "react-native";
 import React, { useState } from "react";
 import FormFields from "../../components/FormFields";
 import CustomButton from "../../components/CustomButton";
@@ -13,7 +13,11 @@ import { useEmail } from "../../context/EmailContext";
 
 
 
+
+
+
 const SetNewPassword = () => {
+  const [loading, setLoading] = useState(false);
   const { getEmail } = useEmail(); // Get email from context  
   
   const [form, setForm] = useState({
@@ -27,6 +31,7 @@ const SetNewPassword = () => {
     console.log("Local store Email is: ",getEmail)
     
       try{
+        setLoading(true);
         const resetPass =  await resetPassword(getEmail, form.password);
         if(resetPass.success){
           console.log("Password reset successfully")
@@ -41,10 +46,13 @@ const SetNewPassword = () => {
           
           
       }
-      catch{
+      catch(error){
         console.log("catch error", error);
 
         Alert.alert("Error", resetPass.message);
+      }
+      finally{
+        setLoading(false);
       }
       
     
@@ -82,7 +90,9 @@ const SetNewPassword = () => {
 
           <CustomButton
             handlePress={handleNewPassword }
-            title="update password"
+            title={loading ? (
+                          <ActivityIndicator size="small" color="#fff" />)
+                          : ("update password")}
             textStyles="text-center text-white text-[14px] font-psemibold "
             container="mt-7 w-full h-12 rounded-[4px] bg-[#0166FC]"
             isLoading={

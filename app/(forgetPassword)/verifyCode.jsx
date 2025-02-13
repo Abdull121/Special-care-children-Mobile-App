@@ -1,18 +1,21 @@
 import React, { useRef, useState } from "react";
-import { View, Text, TextInput,  ScrollView, Alert } from "react-native";
+import { View, Text, TextInput, ScrollView, Alert, ActivityIndicator, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomButton from "../../components/CustomButton";
 import { router } from "expo-router";
+import { verifyOTP, sendOTP } from "../../Appwrite/forgetPassword"; // Import sendOTP function
 
-
-import { verifyOTP } from "../../Appwrite/forgetPassword";
+import { useEmail } from "../../context/EmailContext";
 
 const VerificationScreen = () => {
+  const { getEmail } = useEmail(); // Get email from context  
+
   const [code, setCode] = useState(["", "", "", "", ""]); // State for 5 digits
   const [focus, setFocus] = useState([false, false, false, false, false]); // Focus state for each input
   const inputs = useRef([]); // Refs for each input box
+  const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false); // State for resending OTP
 
-  
   const handleChange = (text, index) => {
     const newCode = [...code];
     newCode[index] = text;
@@ -36,27 +39,43 @@ const VerificationScreen = () => {
     setFocus(newFocus);
   };
 
-  
-// handle verify code
- const handleVerifyCode = async () => {
-  console.log(code.join(""))
+  const handleVerifyCode = async () => {
+    console.log(code.join(""));
 
-  try{
-    const response = await verifyOTP(code.join(""));
-    // console.log(response.message)
-    if(response.success){
-      router.push("/setNewPass");
-    }else{
-      Alert.alert("Error", response.message || "Failed to verify OTP");
+    try {
+      setLoading(true);
+      const response = await verifyOTP(code.join(""));
+      // console.log(response.message)
+      if (response.success) {
+        router.push("/setNewPass");
+      } else {
+        Alert.alert("Error", response.message || "Failed to verify OTP");
+      }
+    } catch (error) {
+      console.log("Error:", error);
+      Alert.alert(error.message || "An error occurred");
+    } finally {
+      setLoading(false);
     }
-  }catch{
-    console.log("Error:", error);
-    Alert.alert(error.message || "An error occurred");
-  }
+  };
 
-    
-
- }
+  const handleResendOTP = async () => {
+    try {
+      setResending(true);
+      // Call the sendOTP function with the email
+      const response = await sendOTP(getEmail); // Replace with the actual email
+      if (response.success) {
+        Alert.alert("Success", "OTP has been resent to your email");
+      } else {
+        Alert.alert("Error", response.message || "Failed to resend OTP");
+      }
+    } catch (error) {
+      console.log("Error:", error);
+      Alert.alert(error.message || "An error occurred");
+    } finally {
+      setResending(false);
+    }
+  };
 
   return (
     <SafeAreaView className="bg-white flex-1">
@@ -86,23 +105,29 @@ const VerificationScreen = () => {
                 onChangeText={(text) => handleChange(text, index)}
                 onKeyPress={(e) => handleKeyPress(e, index)}
                 onFocus={() => handleFocus(index)}
-              // onBlur={() => handleBlur(index)}
               />
             ))}
           </View>
 
           <CustomButton
             handlePress={handleVerifyCode}
-            title="Verify Code"
+            title={loading ? (
+              <ActivityIndicator size="small" color="#fff" />)
+              : ("Reset Password")}
             textStyles="text-center text-white text-[14px] font-psemibold"
             container="w-full h-12 rounded-[4px] bg-[#0166FC]"
             isLoading={code.includes("")}
           />
 
-          <Text className="text-sm text-gray-500 mt-4">
-            Haven't got the email yet?{" "}
-            <Text className="text-blue-600 font-bold">Resend email</Text>
-          </Text>
+              <View className="flex-row items-center mt-4">
+              <Text className="text-sm text-gray-500">Haven't got the email yet? </Text>
+              <TouchableOpacity onPress={handleResendOTP} disabled={resending}>
+                <Text className="text-sm text-blue-600 font-bold">
+                  {resending ? "Resending..." : "Resend email"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
         </View>
       </ScrollView>
     </SafeAreaView>

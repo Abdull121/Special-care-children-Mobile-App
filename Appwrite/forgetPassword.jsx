@@ -142,9 +142,10 @@ const checkEmail = async (email) => {
           return { success: true, message: "Email found" };
         } else {
           console.log("❌ Email is not found:", email);
+          return { success: false, message: "Email found" };
           
         }
-        return result;
+        
       } else {
         console.error("⚠️ Unexpected response:", result);
         return { success: false, message: "Unexpected response format" };
@@ -165,7 +166,7 @@ const resetPassword = async (email, newPassword) => {
       const response = await functions.createExecution(
           "67ad271600140f806142", // Replace with your Appwrite function ID
           JSON.stringify({ email, newPassword }),
-          false // This means it's not synchronous (set to `true` if you need immediate response)
+          // false // This means it's not synchronous (set to `true` if you need immediate response)
       );
 
       if (response) {
