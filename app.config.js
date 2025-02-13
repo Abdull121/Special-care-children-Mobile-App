@@ -57,7 +57,7 @@ export default {
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
-    scheme: "myapp",
+    scheme: "specialcare",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     ios: {
@@ -78,8 +78,10 @@ export default {
     },
     plugins: [
       "expo-router",
+    
       [
         "expo-splash-screen",
+        
         {
           image: "./assets/images/splash-icon.png",
           imageWidth: 200,
@@ -87,6 +89,13 @@ export default {
           backgroundColor: "#ffffff",
         },
       ],
+
+      // [
+      //   "expo-secure-store",
+      //   {
+      //     "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+      //   }
+      // ],
       "expo-font",
     ],
     experiments: {
@@ -96,7 +105,12 @@ export default {
       APPWRITE_URL: process.env.APPWRITE_URL,
       APPWRITE_PROJECT_ID: process.env.APPWRITE_PROJECT_ID,
       APPWRITE_DATABASE_ID: process.env.APPWRITE_DATABASE_ID,
-      PLATFORM: process.env.PLATFORM
+      PLATFORM: process.env.PLATFORM,
+      OTP_COLLECTION_ID: process.env.OTP_COLLECTION_ID,
+      FUNCTION_ID: "67ac9e42002dcfd0c35e", 
+      "eas": {
+        "projectId": "5a0cff51-ca42-43b8-93da-1f263e1db50e"
+      }
 
     },
   },

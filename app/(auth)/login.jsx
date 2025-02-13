@@ -9,6 +9,7 @@ import icons from "../../constants/icons";
 import authService from "../../Appwrite/auth";
 
 const login = () => {
+  
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -86,6 +87,33 @@ const login = () => {
     }
   };
 
+  //handle google auth
+  const handleGoogleAuth = async () => {
+
+    
+      try {
+      const response = await authService.googleAuth();
+      if (response) {
+        console.log("Logged in successfully");
+        router.replace('/childProfile')
+      } else {
+        console.log("error failed to login with google response not created");
+      }
+    } catch (error) {
+      Alert.alert(
+        "Incorrect",
+        error.message || "Something went wrong. Please try again.",
+        [
+          { text: "OK", onPress: () => console.log("OK Pressed") }
+        ]
+      );
+      console.log("Login error:", error);
+    
+    }
+    
+    
+  };
+
   return (
     <SafeAreaView className="h-full px-4 bg-white">
       <ScrollView>
@@ -144,7 +172,7 @@ const login = () => {
             <View className="flex-1 h-[1px] bg-gray-300" />
           </View>
           <CustomButton
-            handlePress={() => { }}
+            handlePress={handleGoogleAuth}
             title={
               <View className="flex-row items-center justify-center">
                 <Image

@@ -5,6 +5,8 @@ import React, { useEffect } from "react";
 import { SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
 
+import { EmailProvider } from "../context/EmailContext";
+
 SplashScreen.preventAutoHideAsync();
 
 const RootLayout = () => {
@@ -25,12 +27,15 @@ const RootLayout = () => {
     return null;
   }
   return (
+    //using context api for storing email wrap with email provider
+    <EmailProvider>   
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="(forgetPassword)" options={{ headerShown: false }} />
       <Stack.Screen name="(userProfile)" options={{ headerShown: false }} />
     </Stack>
+    </EmailProvider>
   );
   // <StatusBar backgroundColor= "#000000" style="light" />
 };

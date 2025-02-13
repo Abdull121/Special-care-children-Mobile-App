@@ -1,5 +1,10 @@
-import { Client, Account, ID } from "react-native-appwrite";
+import { Client, Account, ID, OAuthProvider, Avatars } from "react-native-appwrite";
 import Constants from 'expo-constants';
+import * as Linking from 'expo-linking';
+import { openAuthSessionAsync } from "expo-web-browser";
+import { Alert } from "react-native";
+import * as WebBrowser from 'expo-web-browser';
+
 
 
 export class AuthService {
@@ -14,6 +19,7 @@ export class AuthService {
 
 
     client = new Client();
+    avatars = new Avatars(this.client)
     account;
 
     constructor() {
@@ -105,6 +111,18 @@ export class AuthService {
             return null;
         }
     }
+    async getUser() {
+        try {
+            const response = await this.account.get();
+            if(response.$id){
+                const userAvatar = this.avatars.getInitials(response.name)
+                return {...response, avatar: userAvatar.toString()} 
+            }
+        } catch (error) {
+            console.error("getCurrentUser error::", error);
+            return null;
+        }
+    }
 
     async logout() {
         try {
@@ -117,17 +135,99 @@ export class AuthService {
 
     async googleAuth() {
         try {
-            this.account.createOAuth2Session(
-                "google",
-                Constants.expoConfig.extra.SUCCESS_REDIRECT_URL,
-                Constants.expoConfig.extra.FAILURE_REDIRECT_URL
-            );
+            const redirectUri = Linking.createURL("/");
+            console.log("redirectUri:", redirectUri);
+    
+            const response = await this.account.createOAuth2Session(OAuthProvider.Google);
+            if (!response) throw new Error("Google authentication failed");
+    
+            const browserResult = await openAuthSessionAsync(response.toString(), redirectUri);
+            console.log('Browser Result:', browserResult);
+            if (browserResult.type !== 'success') throw new Error("failed to login with google");
+    
+            // Make sure browserResult.url exists before creating URL object
+            if (!browserResult.url) {
+                throw new Error("No URL returned from Google auth");
+            }
+    
+            const url = new URL(browserResult.url);
+            const secret = url.searchParams.get('secret')?.toString();
+            const userId = url.searchParams.get('userId')?.toString();
+            if (!secret || !userId) throw new Error("Failed to login with google");
+    
+            const session = await this.account.createSession(userId, secret);
+            if (!session) throw new Error("Failed to create session!");
+            return true;
         } catch (error) {
             console.error("googleAuth error::", error);
             throw error;
         }
     }
-}
+
+
+   
+    
+    // async googleAuth() {
+    //     try {
+    //         // Use the default redirect URI provided by Appwrite
+    //         const redirectUri = 'https://cloud.appwrite.io/v1/account/sessions/oauth2/callback/google/67818fcb00244a465e51'; // Replace with your actual default callback URI
+                
+    //         console.log("Redirect URI:", redirectUri);  // Log for debugging
+    
+    //         // Step 1: Start the OAuth2 session with Google (Appwrite will handle the redirect)
+    //         const response = await this.account.createOAuth2Session(OAuthProvider.Google, redirectUri);
+    //         if (!response) throw new Error("Google authentication failed");
+    
+    //         // Step 2: Handle the browser authentication flow
+    //         const browserResult = await openAuthSessionAsync(response.toString(), redirectUri);
+    //         console.log('Browser Result:', browserResult);
+    
+    //         // Step 3: Check if authentication was successful
+    //         if (browserResult.type === 'dismiss') {
+    //             throw new Error("User dismissed the authentication window");
+    //         }
+    //         if (browserResult.type !== 'success') {
+    //             throw new Error("Google authentication failed");
+    //         }
+    
+    //         // Step 4: Ensure the callback URL is returned in the result
+    //         if (!browserResult.url) {
+    //             throw new Error("No URL returned from Google auth");
+    //         }
+    
+    //         // Step 5: Parse the URL from the successful OAuth redirect
+    //         const url = new URL(browserResult.url);
+    //         const secret = url.searchParams.get('secret');
+    //         const userId = url.searchParams.get('userId');
+    
+    //         if (!secret || !userId) throw new Error("Failed to login with Google: missing required parameters");
+    
+    //         // Step 6: Create session using the userId and secret returned
+    //         const session = await this.account.createSession(userId, secret);
+    //         if (!session) throw new Error("Failed to create session!");
+    
+    //         return true;  // Authentication was successful
+    //     } catch (error) {
+    //         console.error("googleAuth error::", error);
+    //         Alert.alert("Google Auth Error", error.message); // Show error message to the user
+    //         throw error;  // Rethrow the error for handling further up the stack
+    //     }
+    // }
+    
+
+    
+
+    
+};
+
+
+
+    
+
+
+
+
+
 
 
 const authService = new AuthService();

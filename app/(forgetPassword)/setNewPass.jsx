@@ -1,18 +1,55 @@
-import { View, Text, SafeAreaView, ScrollView } from "react-native";
+import { View, Text, SafeAreaView, ScrollView, Alert } from "react-native";
 import React, { useState } from "react";
 import FormFields from "../../components/FormFields";
 import CustomButton from "../../components/CustomButton";
 import { router } from "expo-router";
 import LottieView from "lottie-react-native";
 
+// import * as SecureStore from 'expo-secure-store';
+import {resetPassword } from "../../Appwrite/forgetPassword";
+
+import { useEmail } from "../../context/EmailContext";
+
+
+
 
 const SetNewPassword = () => {
+  const { getEmail } = useEmail(); // Get email from context  
+  
   const [form, setForm] = useState({
     password: "",
     confirmPassword: "",
   });
   // console.log(form.email);
   const [successMsg, setSuccessMsg] = useState(false);
+
+  const handleNewPassword = async () => {
+    console.log("Local store Email is: ",getEmail)
+    
+      try{
+        const resetPass =  await resetPassword(getEmail, form.password);
+        if(resetPass.success){
+          console.log("Password reset successfully")
+          setSuccessMsg(true);
+          return;
+        }
+        else if(!resetPass.success){
+          console.log("Error", resetPass.message); 
+          
+          Alert.alert("Error", resetPass.message);
+        }
+          
+          
+      }
+      catch{
+        console.log("catch error", error);
+
+        Alert.alert("Error", resetPass.message);
+      }
+      
+    
+
+  }
 
   return (
     <SafeAreaView className="bg-white">
@@ -44,7 +81,7 @@ const SetNewPassword = () => {
           />
 
           <CustomButton
-            handlePress={() => setSuccessMsg(true)}
+            handlePress={handleNewPassword }
             title="update password"
             textStyles="text-center text-white text-[14px] font-psemibold "
             container="mt-7 w-full h-12 rounded-[4px] bg-[#0166FC]"

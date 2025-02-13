@@ -1,14 +1,18 @@
 import React, { useRef, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, TextInput,  ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomButton from "../../components/CustomButton";
 import { router } from "expo-router";
+
+
+import { verifyOTP } from "../../Appwrite/forgetPassword";
 
 const VerificationScreen = () => {
   const [code, setCode] = useState(["", "", "", "", ""]); // State for 5 digits
   const [focus, setFocus] = useState([false, false, false, false, false]); // Focus state for each input
   const inputs = useRef([]); // Refs for each input box
 
+  
   const handleChange = (text, index) => {
     const newCode = [...code];
     newCode[index] = text;
@@ -32,17 +36,27 @@ const VerificationScreen = () => {
     setFocus(newFocus);
   };
 
-  // const handleBlur = (index) => {
-  //   const newFocus = [...focus];
-  //   newFocus[index] = false;
-  //   setFocus(newFocus);
-  // };
+  
+// handle verify code
+ const handleVerifyCode = async () => {
+  console.log(code.join(""))
 
+  try{
+    const response = await verifyOTP(code.join(""));
+    // console.log(response.message)
+    if(response.success){
+      router.push("/setNewPass");
+    }else{
+      Alert.alert("Error", response.message || "Failed to verify OTP");
+    }
+  }catch{
+    console.log("Error:", error);
+    Alert.alert(error.message || "An error occurred");
+  }
 
+    
 
-  // const handleSubmit = () => {
-  //   alert(`Verification Code: ${code.join("")}`);
-  // };
+ }
 
   return (
     <SafeAreaView className="bg-white flex-1">
@@ -78,7 +92,7 @@ const VerificationScreen = () => {
           </View>
 
           <CustomButton
-            handlePress={() => { router.push("/setNewPass") }}
+            handlePress={handleVerifyCode}
             title="Verify Code"
             textStyles="text-center text-white text-[14px] font-psemibold"
             container="w-full h-12 rounded-[4px] bg-[#0166FC]"
