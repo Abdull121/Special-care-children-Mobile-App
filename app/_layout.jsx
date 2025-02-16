@@ -6,6 +6,7 @@ import { SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
 
 import { EmailProvider } from "../context/EmailContext";
+import GlobalProvider from "../context/GlobalProvider"
 
 SplashScreen.preventAutoHideAsync();
 
@@ -27,7 +28,8 @@ const RootLayout = () => {
     return null;
   }
   return (
-    //using context api for storing email wrap with email provider
+    <GlobalProvider>
+    
     <EmailProvider>   
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -36,6 +38,7 @@ const RootLayout = () => {
       <Stack.Screen name="(userProfile)" options={{ headerShown: false }} />
     </Stack>
     </EmailProvider>
+    </GlobalProvider>
   );
   // <StatusBar backgroundColor= "#000000" style="light" />
 };
