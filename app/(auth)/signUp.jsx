@@ -8,11 +8,15 @@ import { Link, router } from "expo-router";
 import CustomButton from "../../components/CustomButton";
 import icons from "../../constants/icons";
 import authService from '../../Appwrite/auth';
+import { useGlobalContext } from "../../context/GlobalProvider";
 
 
 
 
 const SignUp = () => {
+  const { setUser, setIsLogged } = useGlobalContext();
+
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -87,8 +91,10 @@ const SignUp = () => {
       console.log(form)
       const response = await authService.createAccount(form);
       if (response) {
-        console.log("Account created successfully")
-        router.replace('/login')
+        setUser(response);
+        setIsLogged(true);
+        console.log("Account created successfully", response)
+        router.replace('/childProfile')
 
       }
       else {

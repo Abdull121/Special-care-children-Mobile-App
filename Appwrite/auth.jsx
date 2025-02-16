@@ -1,9 +1,8 @@
-import { Client, Account, ID, OAuthProvider, Avatars } from "react-native-appwrite";
+import { Client, Account, ID, OAuthProvider, Avatars, Databases, Query } from "react-native-appwrite";
 import Constants from 'expo-constants';
 import * as Linking from 'expo-linking';
 import { openAuthSessionAsync } from "expo-web-browser";
-import { Alert } from "react-native";
-import * as WebBrowser from 'expo-web-browser';
+
 
 
 
@@ -14,12 +13,16 @@ export class AuthService {
         appwriteUrl: Constants.expoConfig.extra.APPWRITE_URL,
         appwriteProjectId: Constants.expoConfig.extra.APPWRITE_PROJECT_ID,
         appwriteDatabaseId: Constants.expoConfig.extra.APPWRITE_DATABASE_ID,
+        userCollectionId: Constants.expoConfig.extra.USER_COLLECTION_ID,
         platform: Constants.expoConfig.extra.PLATFORM,
     };
+    
 
 
     client = new Client();
     avatars = new Avatars(this.client)
+    // Create databases instance
+    databases = new Databases(this.client);
     account;
 
     constructor() {
@@ -72,6 +75,7 @@ export class AuthService {
 
 
     async createAccount({ email, password, name }) {
+        console.log(this.appwriteConfig)
         try {
             const userAccount = await this.account.create(
                 ID.unique(),
@@ -79,7 +83,25 @@ export class AuthService {
                 password,
                 name
             );
-            return userAccount;
+            if (!userAccount) throw Error;
+            const avatarUrl = this.avatars.getInitials(name);
+            await this.login({email, password});
+
+            // Store user in database using the class instance of databases
+                const newUser = await this.databases.createDocument(
+            this.appwriteConfig.appwriteDatabaseId,
+            this.appwriteConfig.userCollectionId,
+            ID.unique(),
+            {
+                accountId: userAccount.$id,
+                email: email,
+                name: name,
+                avatar: avatarUrl.toString()
+            }
+        );
+
+
+            return newUser;
         } catch (error) {
             console.error("createAccount error::", error);
             throw error;
@@ -103,15 +125,54 @@ export class AuthService {
         }
     }
 
-    async getCurrentUser() {
+    // Get Account
+    async  getAccount() {
         try {
-            return await this.account.get();
+          const currentAccount = await this. account.get();
+      
+          return currentAccount;
         } catch (error) {
-            console.error("getCurrentUser error::", error);
-            return null;
+          throw new Error(error);
         }
-    }
-    async getUser() {
+      }
+
+
+            
+
+            // Get Current User
+        async  getCurrentUser() {
+            try {
+                  //await this.account.deleteSessions();
+            const currentAccount = await this.getAccount();
+            if (!currentAccount) throw Error;
+        
+            const currentUser = await this.databases.listDocuments(
+                this.appwriteConfig.appwriteDatabaseId,
+                this.appwriteConfig.userCollectionId,
+                [Query.equal("accountId", currentAccount.$id)]
+            );
+        
+            if (!currentUser) throw Error;
+        
+            return currentUser.documents[0];
+            } catch (error) {
+            console.log(error);
+            return null;
+            }
+        }
+
+
+    
+
+
+
+
+
+
+
+    //get user Avatar
+    async getUserAvatar() {
+
         try {
             const response = await this.account.get();
             if(response.$id){

@@ -8,7 +8,10 @@ import CustomButton from "../../components/CustomButton";
 import icons from "../../constants/icons";
 import authService from "../../Appwrite/auth";
 
+import { useGlobalContext } from "../../context/GlobalProvider";
+
 const login = () => {
+  const { setUser, setIsLogged } = useGlobalContext();
   
   const [form, setForm] = useState({
     email: "",
@@ -67,8 +70,11 @@ const login = () => {
     try {
       const session = await authService.login(form);
       if (session) {
+        const result = await authService.getCurrentUser();
+        setUser(result);
+        setIsLogged(true);
         console.log("Logged in successfully");
-        router.replace('/childProfile')
+        router.replace('/home')
       } else {
         console.log("No session");
       }
@@ -95,7 +101,7 @@ const login = () => {
       const response = await authService.googleAuth();
       if (response) {
         console.log("Logged in successfully");
-        router.replace('/childProfile')
+        router.replace('/home')
       } else {
         console.log("error failed to login with google response not created");
       }
