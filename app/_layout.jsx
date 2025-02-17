@@ -36,6 +36,10 @@ const RootLayout = () => {
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="(forgetPassword)" options={{ headerShown: false }} />
       <Stack.Screen name="(userProfile)" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+     
+      
+      
     </Stack>
     </EmailProvider>
     </GlobalProvider>
