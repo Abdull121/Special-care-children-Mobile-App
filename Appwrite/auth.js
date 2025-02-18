@@ -1,4 +1,4 @@
-import { Client, Account, ID, OAuthProvider, Avatars, Databases, Query } from "react-native-appwrite";
+import { Client, Account, ID, OAuthProvider, Databases, Query } from "react-native-appwrite";
 import Constants from 'expo-constants';
 import * as Linking from 'expo-linking';
 import { openAuthSessionAsync } from "expo-web-browser";
@@ -14,13 +14,14 @@ export class AuthService {
         appwriteProjectId: Constants.expoConfig.extra.APPWRITE_PROJECT_ID,
         appwriteDatabaseId: Constants.expoConfig.extra.APPWRITE_DATABASE_ID,
         userCollectionId: Constants.expoConfig.extra.USER_COLLECTION_ID,
+        childCollectionId: Constants.expoConfig.extra.CHILD_COLLECTION_ID,
         platform: Constants.expoConfig.extra.PLATFORM,
     };
     
 
 
     client = new Client();
-    avatars = new Avatars(this.client)
+    // avatars = new Avatars(this.client)
     // Create databases instance
     databases = new Databases(this.client);
     account;
@@ -84,7 +85,7 @@ export class AuthService {
                 name
             );
             if (!userAccount) throw Error;
-            const avatarUrl = this.avatars.getInitials(name);
+            // const avatarUrl = this.avatars.getInitials(name);
             await this.login({email, password});
 
             // Store user in database using the class instance of databases
@@ -96,7 +97,7 @@ export class AuthService {
                 accountId: userAccount.$id,
                 email: email,
                 name: name,
-                avatar: avatarUrl.toString()
+                // avatar: avatarUrl.toString()
             }
         );
 
@@ -144,13 +145,17 @@ export class AuthService {
             try {
                   //await this.account.deleteSessions();
             const currentAccount = await this.getAccount();
+            // console.log("current Account",currentAccount)
             if (!currentAccount) throw Error;
         
             const currentUser = await this.databases.listDocuments(
                 this.appwriteConfig.appwriteDatabaseId,
-                this.appwriteConfig.userCollectionId,
+                this.appwriteConfig.childCollectionId,
                 [Query.equal("accountId", currentAccount.$id)]
             );
+
+            console.log(currentUser.documents[0])
+           
         
             if (!currentUser) throw Error;
         
