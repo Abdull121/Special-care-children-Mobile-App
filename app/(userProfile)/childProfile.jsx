@@ -1,14 +1,19 @@
-import { View, Text, SafeAreaView, ScrollView } from 'react-native'
+import { View, Text, SafeAreaView, ScrollView,  } from 'react-native'
 import React, { useState } from 'react'
 import FormFields from '../../components/FormFields';
 import CustomButton from '../../components/CustomButton';
 import { StatusBar } from 'expo-status-bar';
+import { router } from "expo-router";
 
 // import { Picker } from "@react-native-picker/picker";
 import { Dropdown } from 'react-native-element-dropdown';
+import service from '../../Appwrite/config';
+import { useGlobalContext } from '../../context/GlobalProvider';
 
 
 const childProfile = () => {
+    const { setUser } = useGlobalContext();
+    //console.log(user)
     const [form, setForm] = useState({
         childName: "",
         age: "",
@@ -25,6 +30,31 @@ const childProfile = () => {
         { label: 'Down Syndrome', value: 'down_syndrome' },
         { label: 'Cerebral Palsy', value: 'cerebral_palsy' },
     ];
+
+    const handelSubmit = async () => {
+        console.log(form.age, form.childName);
+        try{
+            for (const item of data) {
+                if (item.value === selectedValue) {
+                  console.log(item.value);
+                  const result = await service.createChildProfile({
+                    childName: form.childName,
+                    age: form.age,
+                    primaryCondition: item.value,
+                  });
+                  if (result) {
+                    console.log("Child profile created successfully");
+                    setUser(result);
+                    router.push("/home");
+                  }
+                  break; // Exit the loop once the matching item is found and processed
+                }
+              }
+        }catch(error){
+            console.log("Appwrite serive :: createChildeProfile :: error", error);
+        }
+        
+      };
 
     return (
         <SafeAreaView className="bg-white" >
@@ -109,7 +139,7 @@ const childProfile = () => {
 
 
                         <CustomButton
-                            handlePress={() => { }}
+                            handlePress={handelSubmit}
                             title="Continue"
                             textStyles="text-center text-white text-[14px] font-psemibold "
                             container="mt-7 w-full h-12 rounded-[4px] bg-[#0166FC]"

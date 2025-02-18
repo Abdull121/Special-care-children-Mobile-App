@@ -109,6 +109,7 @@ export default {
       OTP_COLLECTION_ID: process.env.OTP_COLLECTION_ID,
       FUNCTION_ID: "67ac9e42002dcfd0c35e", 
       USER_COLLECTION_ID: process.env.USER_COLLECTION_ID,
+      CHILD_COLLECTION_ID: process.env.CHILD_COLLECTION_ID,
       "eas": {
         "projectId": "5a0cff51-ca42-43b8-93da-1f263e1db50e"
       }
