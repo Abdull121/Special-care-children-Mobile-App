@@ -42,19 +42,23 @@ const TabLayout = () => {
       ) : (
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: "#0166FC",
-          tabBarInactiveTintColor: "#CDCDE0",
-          tabBarShowLabel: false,
-          headerShown: false,
-          
-          tabBarStyle: {
-            
-            borderTopWidth: 1,
-            borderTopColor: "#232533",
-            height: 74,
-          },
-         
-        }}
+        tabBarActiveTintColor: "#0166FC",
+        tabBarInactiveTintColor: "#CDCDE0",
+        tabBarShowLabel: false,
+        headerShown: false,
+        
+        tabBarStyle: {
+          position: 'absolute',
+          backgroundColor: "#FFFFFF",
+          borderTopColor: "#232533",
+          elevation: 1,
+          zIndex: 1,
+          // Initial values
+          opacity: 1,
+          height: 74,
+          borderTopWidth: 1,
+        }
+      }}
       >
         <Tabs.Screen
           name="home"

@@ -11,7 +11,7 @@ import { useGlobalContext } from "../../context/GlobalProvider";
 
 const Home = () => {
   const { user } = useGlobalContext();
-  console.log(user)
+  //console.log(user)
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,9 +35,9 @@ const Home = () => {
   }, []);
 
   return (
-    <ScrollView className="flex-1 bg-white px-5 py-10">
+    <ScrollView className="flex-1 bg-white px-5 pt-10 mb-16">
       {/* Profile Section */}
-      <View className="flex-row items-center mt-5 mb-4">
+      <View className="flex-row items-center mt-5 mb-4 bg-white">
         <Image
           source={{ uri: user.avatar }}
           className="w-12 h-12 rounded-full mr-3"
