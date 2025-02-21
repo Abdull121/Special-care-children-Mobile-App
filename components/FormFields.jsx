@@ -10,6 +10,7 @@ const FormFields = ({
   placeholder,
   otherStyle,
   secureTextEntry,
+  textColor,
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,7 +20,8 @@ const FormFields = ({
   return (
     <View style={tw`mt-7 ${otherStyle}`}>
       <Text
-        className="font-psemibold text-[14px] line-hight-[24px]"
+      style={tw`font-psemibold text-[14px] line-hight-[24px] ${textColor}`}
+        
       // style={{
       //   fontFamily: "Poppins-SemiBold",
       //   fontSize: 14,

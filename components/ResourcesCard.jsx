@@ -4,7 +4,7 @@ import images from "../constants/images";
 
 const ResourcesSection = () => {
   return (
-    <View className="mt-6 px-0 mb-5">
+    <View className="mt-6 px-0 mb-8">
       <View className="flex-row justify-between mb-3">
         <Text className="text-xl font-bold">Resources</Text>
         <TouchableOpacity>

@@ -6,6 +6,7 @@ import { openAuthSessionAsync } from "expo-web-browser";
 
 
 
+
 export class AuthService {
 
 
@@ -229,6 +230,10 @@ export class AuthService {
             throw error;
         }
     }
+
+
+
+    
 
 
    
