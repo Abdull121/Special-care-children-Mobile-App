@@ -9,7 +9,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export const NotificationService = {
+const NotificationService = {
   initialize: async () => {
     if (!Device.isDevice) {
       throw new Error('Must use physical device for Push Notifications');
@@ -31,24 +31,48 @@ export const NotificationService = {
   scheduleTaskNotification: async (task) => {
     try {
       // Validate time format (HH:mm)
-      const timePattern = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
-      if (!timePattern.test(task.time)) {
-        throw new Error('Invalid time format. Use HH:mm (24-hour format)');
+      // const timePattern = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+      // if (!timePattern.test(task.time)) {
+      //   throw new Error('Invalid time format. Use HH:mm (24-hour format)');
+      // }
+      console.log(task)
+
+      let hours = 0;
+    let minutes = 0;
+
+    if (task.time.includes('AM') || task.time.includes('PM')) {
+      const timeParts = task.time.match(/(\d+):(\d+)\s*(AM|PM)/i);
+      if (timeParts) {
+        hours = parseInt(timeParts[1]);
+        minutes = parseInt(timeParts[2]);
+        const period = timeParts[3].toUpperCase();
+        
+        // Convert to 24-hour format
+        if (period === 'PM' && hours < 12) hours += 12;
+        if (period === 'AM' && hours === 12) hours = 0;
       }
+    } else {
+      // Fallback for 24-hour format if present
+      const [hoursStr, minutesStr] = task.time.split(':');
+      hours = parseInt(hoursStr);
+      minutes = parseInt(minutesStr);
+    }
 
       // Parse date/time
-      const [hours, minutes] = task.time.split(':');
       const [day, month, year] = task.date.split('/');
       console.log(hours, minutes, day, month, year);
 
-      // Create Date object (months are 0-indexed in JS)
+       // Create Date object (months are 0-indexed in JS)
+
+       
       const triggerDate = new Date(
-        parseInt(year),
-        parseInt(month) - 1, // Month is 0-indexed
-        parseInt(day),
-        parseInt(hours),
-        parseInt(minutes)
-      );
+      parseInt(year),
+      parseInt(month) - 1,
+      parseInt(day),
+      hours,
+      minutes
+    );
+    console.log(new Date().getDate())
 
       // Validate date
       if (isNaN(triggerDate.getTime())) {
@@ -60,15 +84,7 @@ export const NotificationService = {
         throw new Error('Cannot schedule notifications for past times');
       }
 
-      // Log the trigger date to verify it is correct
-    //   console.log('Notification will be triggered at:', triggerDate.toISOString());
-    //   console.log('Trigger Date Details:', {
-    //     year: triggerDate.getFullYear(),
-    //     month: triggerDate.getMonth() + 1, // Month is 0-indexed
-    //     day: triggerDate.getDate(),
-    //     hours: triggerDate.getHours(),
-    //     minutes: triggerDate.getMinutes(),
-    //   });
+      
 
       // Schedule notification
       const notificationId = await Notifications.scheduleNotificationAsync({
@@ -94,3 +110,4 @@ export const NotificationService = {
     }
   }
 };
+export  default NotificationService;
