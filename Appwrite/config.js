@@ -13,6 +13,7 @@ export class Service{
         appwriteDatabaseId: Constants.expoConfig.extra.APPWRITE_DATABASE_ID,
         userCollectionId: Constants.expoConfig.extra.USER_COLLECTION_ID,
         childCollectionId: Constants.expoConfig.extra.CHILD_COLLECTION_ID,
+        scheduleCollectionId: Constants.expoConfig.extra.SCHEDULE_COLLECTION_ID,
         platform: Constants.expoConfig.extra.PLATFORM,
     };
     
@@ -59,6 +60,25 @@ export class Service{
         }
     }
 
+
+    //task created
+
+     async taskCreated (taskData) {
+        try {
+            const response = await this.databases.createDocument(
+                this.appwriteConfig.appwriteDatabaseId,
+                this.appwriteConfig.scheduleCollectionId,
+                ID.unique(),
+                taskData
+                
+                
+            );
+            return response;
+        } catch (error) {
+            console.error('Appwrite service :: createTask :: error: ', error);
+            throw error;
+        }
+    }
 
 
    

@@ -14,9 +14,13 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { NotificationService } from '../services/NotificationService';
+import  NotificationService  from '../services/NotificationService';
 import CustomButton from "../../components/CustomButton";
 import icons from "../../constants/icons";
+import config from "../../Appwrite/config";
+import TaskCard from "../../components/TaskCard";
+import { format,isToday, isTomorrow } from "date-fns";
+
 
 const categories = ["Appointment", "Activity", "Therapy", "Education"];
 
@@ -28,13 +32,14 @@ const Schedule = () => {
   
   const [taskDetails, setTaskDetails] = useState({
     title: "",
+    description: "",
     date: "",
     time: "",
     category: null,
   });
 
   useEffect(() => {
-    setupNotifications();
+     setupNotifications();
   }, []);
 
   const setupNotifications = async () => {
@@ -52,10 +57,10 @@ const Schedule = () => {
   };
 
   const handleTimeConfirm = (time) => {
-    const formattedTime = time.toLocaleTimeString('en-GB', {
+    const formattedTime = time.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false,
+      hour12: true,
     });
     handleInputChange("time", formattedTime);
     setTimePickerVisible(false);
@@ -66,7 +71,7 @@ const Schedule = () => {
   };
 
   const validateTaskDetails = () => {
-    if (!taskDetails.title || !taskDetails.date || !taskDetails.time || !taskDetails.category) {
+    if (!taskDetails.title || !taskDetails.date || !taskDetails.time || !taskDetails.description || !taskDetails.category) {
       Alert.alert('Invalid Input', 'Please fill in all fields');
       return false;
     }
@@ -75,6 +80,7 @@ const Schedule = () => {
 
   const handleCreateTask = async () => {
     if (!validateTaskDetails()) return;
+    
     
 
     try {
@@ -98,50 +104,115 @@ const Schedule = () => {
 
       // Save task to database appWrite
 
-      // await TaskService.createTask({
-      //           title: taskDetails.title,
-      //           date: taskDetails.date,
-      //           time: taskDetails.time,
-      //           category: taskDetails.category,
-      //           status: 'pending',
-      //           notificationId
-      //       });
+      
 
+     const result =  await config.taskCreated({
+                title: taskDetails.title,
+                description: taskDetails.description,
+                date: taskDetails.date,
+                time: taskDetails.time,
+                category: taskDetails.category,
+                status: 'pending',
+                notificationId
+            });
+            if(!result) throw new Error('Task creation failed');
+            console.log('Task created successfully', result);
+            setModalVisible(false);
       // Reset form
       setTaskDetails({
         title: "",
+        description: "",
         date: "",
         time: "",
         category: null,
       });
       
-      setModalVisible(false);
+      
       Alert.alert('Success', 'Task scheduled successfully!');
     } catch (error) {
       Alert.alert('Error', error.message);
     }
   };
 
-  const TaskBox = ({ title, bgColor, tasks = [] }) => (
-    <View className="mb-4">
-      <Text className="text-lg font-semibold text-black mb-2">{title}</Text>
-      <View className={`border ${bgColor} rounded-lg p-6 h-[285px]`}>
-        <ScrollView>
-          {tasks.length > 0 ? (
-            tasks.map((task) => (
-              <View key={task.id} className="mb-3 bg-white p-3 rounded-lg shadow">
-                <Text className="font-semibold">{task.title}</Text>
-                <Text className="text-gray-600">{`${task.date} at ${task.time}`}</Text>
-                <Text className="text-blue-600">{task.category}</Text>
+  const TaskBox = ({ title, bgColor, tasks = [] }) => {
+  
+    const formatDate = (taskDate, taskTime) => {
+      try {
+        if (!taskDate || !taskTime) return "Invalid Date";
+  
+        // Parse date (DD/MM/YYYY)
+        const [day, month, year] = taskDate.split('/').map(Number);
+        
+        // Parse 12-hour time with AM/PM
+        const timeParts = taskTime.match(/(\d+):(\d+) ([APap][Mm])/);
+        if (!timeParts) return "Invalid Time";
+        
+        let [hours, minutes] = timeParts.slice(1, 3).map(Number);
+        const period = timeParts[3].toUpperCase();
+  
+        // Convert to 24-hour format
+        if (period === 'PM' && hours !== 12) hours += 12;
+        if (period === 'AM' && hours === 12) hours = 0;
+  
+        // Create Date object (months are 0-indexed)
+        const taskDateTime = new Date(year, month - 1, day, hours, minutes);
+  
+        if (isNaN(taskDateTime)) return "Invalid Date";
+  
+        // Format output
+        const formattedTime = format(taskDateTime, 'h:mm a');
+        
+        if (isToday(taskDateTime)) {
+          return `Today, ${formattedTime}`;
+        }
+        if (isTomorrow(taskDateTime)) {
+          return `Tomorrow, ${formattedTime}`;
+        }
+        return `${format(taskDateTime, 'MMM d')}, ${formattedTime}`;
+  
+      } catch (error) {
+        console.error('Date formatting error:', error);
+        return "Invalid Date";
+      }
+    };
+  
+    return (
+      <View className="mb-4 ">
+        <Text className="text-lg font-semibold text-black mb-2">{title}</Text>
+        <View className={`border ${bgColor} rounded-lg  h-[285px]`}>
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{
+              paddingTop: 10,
+              paddingHorizontal: 8,
+              
+            }}
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true}
+          >
+            {tasks.length > 0 ? (
+              tasks.map((task) => (
+                <View key={task.id}>
+                  <TaskCard
+                    title={task.title}
+                    description={task.description}
+                    
+                    time={formatDate(task.date, task.time)}
+                    category={task.category}
+                    available={true}
+                  />
+                </View>
+              ))
+            ) : (
+              <View className="flex-1 h-[200px] justify-center items-center">
+                <Text className="text-gray-600">No {title} Available</Text>
               </View>
-            )))
-           : (
-            <Text className="text-gray-600 text-center">No {title} Available</Text>
-          )}
-        </ScrollView>
+            )}
+          </ScrollView>
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white mb-20">
@@ -159,13 +230,17 @@ const Schedule = () => {
         <View className="flex-1 mb-4">
         <TaskBox 
             title="Completed Task" 
-            bgColor="border-primary" 
+            bgColor="border-primary"
+            
+            
             tasks={tasks.filter(task => task.status === 'completed')}
           />
           <TaskBox 
             title="Pending Tasks" 
             bgColor="border-primary" 
-            tasks={tasks.filter(task => task.status === 'pending')}
+            
+    
+             tasks={tasks.filter(task => task.status === 'pending')}
           />
           
           <TouchableOpacity 
@@ -220,6 +295,15 @@ const Schedule = () => {
                 placeholder="Enter task title" 
                 value={taskDetails.title} 
                 onChangeText={(text) => handleInputChange("title", text)} 
+              />
+
+              {/* Description Input */}
+              <Text className="text-white font-medium mb-1">Description</Text>
+              <TextInput 
+                className="bg-white rounded-lg px-4 py-4 mb-4 text-black" 
+                placeholder="Enter task description" 
+                value={taskDetails.description} 
+                onChangeText={(description) => handleInputChange("description", description)} 
               />
 
               {/* Category Selection */}

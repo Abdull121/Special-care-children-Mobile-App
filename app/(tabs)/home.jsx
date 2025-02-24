@@ -19,8 +19,8 @@ const Home = () => {
     const fetchTasks = async () => {
       try {
         const fetchedTasks = [
-          { id: 1, title: "Interview with doctor for therapy.", description: "An insightful conversation with a doctor.", time: "Today, 8:00 AM - 9:30 AM" },
-          { id: 2, title: "Session on ADHD Awareness.", description: "Understanding ADHD therapy in depth.", time: "Today, 10:00 AM - 11:30 AM" },
+          { id: 1, title: "Interview with doctor for therapy.", description: "An insightful conversation with a doctor.", time: "Today, 8:00 AM " },
+          { id: 2, title: "Session on ADHD Awareness.", description: "Understanding ADHD therapy in depth.", time: "Today, 1:00 AM " },
           
         ];
         setTasks(fetchedTasks);
