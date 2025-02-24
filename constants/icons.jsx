@@ -8,6 +8,8 @@ import resources from "../assets/icons/resources.png";
 import task from "../assets/icons/stickynote.png";
 import smile from "../assets/icons/smile.png";
 import flag from "../assets/icons/flag.png";
+import date from "../assets/icons/date.png";
+import time from "../assets/icons/time.png";
 
 export default {
   google,
@@ -20,4 +22,6 @@ export default {
   task,
   smile,
   flag,
+  date,
+  time,
 };

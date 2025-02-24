@@ -65,6 +65,7 @@ export default {
       bundleIdentifier: "com.abdullahdev.specialcare", // Fixed "Package" key
     },
     android: {
+      "useNextNotificationsApi": true,
       adaptiveIcon: {
         foregroundImage: "./assets/images/adaptive-icon.png",
         backgroundColor: "#ffffff",
@@ -78,6 +79,14 @@ export default {
     },
     plugins: [
       "expo-router",
+       //"expo-secure-store",
+       [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/children.png",
+          "color": "#ffffff"
+        }
+      ],
     
       [
         "expo-splash-screen",

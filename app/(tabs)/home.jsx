@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import icons from "../../constants/icons";
 import TaskCard from "../../components/TaskCard";
@@ -35,7 +35,8 @@ const Home = () => {
   }, []);
 
   return (
-    <ScrollView className="flex-1 bg-white px-5 pt-10 mb-16">
+   <SafeAreaView className="flex-1 bg-white">
+     <ScrollView className="flex-1 bg-white px-5 pt-10 mb-16">
       {/* Profile Section */}
       <View className="flex-row items-center mt-5 mb-4 bg-white">
         <Image
@@ -113,6 +114,7 @@ const Home = () => {
       {/* <ChildModeChart /> */}
       </View>
     </ScrollView>
+   </SafeAreaView>
   );
 };
 

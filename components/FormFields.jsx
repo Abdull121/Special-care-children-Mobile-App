@@ -20,7 +20,8 @@ const FormFields = ({
   return (
     <View style={tw`mt-7 ${otherStyle}`}>
       <Text
-      style={tw`font-psemibold text-[14px] line-hight-[24px] ${textColor}`}
+      className="` font-psemibold text-[14px] line-hight-[24px] ${textColor}`"
+      // style={tw`font-psemibold text-[14px] line-hight-[24px] ${textColor}`}
         
       // style={{
       //   fontFamily: "Poppins-SemiBold",
