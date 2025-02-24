@@ -1,17 +1,31 @@
-import { View, Text, SafeAreaView, TouchableOpacity, TextInput, ScrollView } from "react-native";
-import React, { useRef, useState, useCallback } from "react";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import BottomSheet, { BottomSheetScrollView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { 
+  View, 
+  Text, 
+  SafeAreaView, 
+  TouchableOpacity, 
+  TextInput, 
+  ScrollView, 
+  Modal, 
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Image,
+  Alert
+} from "react-native";
+import React, { useState, useEffect } from "react";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { NotificationService } from '../services/NotificationService';
 import CustomButton from "../../components/CustomButton";
+import icons from "../../constants/icons";
 
 const categories = ["Appointment", "Activity", "Therapy", "Education"];
 
 const Schedule = () => {
-  const navigation = useNavigation();
-  const bottomSheetRef = useRef(null);
-
-  // Consolidated state
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+  const [isTimePickerVisible, setTimePickerVisible] = useState(false);
+  const [tasks, setTasks] = useState([]);
+  
   const [taskDetails, setTaskDetails] = useState({
     title: "",
     date: "",
@@ -19,196 +33,282 @@ const Schedule = () => {
     category: null,
   });
 
-  // Function to update state
-  const handleInputChange = (field, value) => {
-    console.log(`Field: ${field}, Value: ${value}`);
-    console.log(taskDetails.field)
-    
-    
-    setTaskDetails((prev) => ({ ...prev, [field]: value }));
-   
+  useEffect(() => {
+    setupNotifications();
+  }, []);
+
+  const setupNotifications = async () => {
+    try {
+      await NotificationService.initialize();
+    } catch (error) {
+      Alert.alert('Notification Error', error.message);
+    }
   };
 
-  // Open Bottom Sheet
-  const handleOpenModal = () => {
-    navigation.setOptions({
-      tabBarStyle: {
-        display: "none",
-        height: 0,
-        borderTopWidth: 0,
-        elevation: 0, // For Android
-        zIndex: 0,    // For iOS
-      }
+  const handleDateConfirm = (date) => {
+    const formattedDate = date.toLocaleDateString('en-GB'); // DD/MM/YYYY
+    handleInputChange("date", formattedDate);
+    setDatePickerVisible(false);
+  };
+
+  const handleTimeConfirm = (time) => {
+    const formattedTime = time.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
     });
-    setTimeout(() => {
-      bottomSheetRef.current?.snapToIndex(0);
-      console.log("opening")
-    }, 460);
+    handleInputChange("time", formattedTime);
+    setTimePickerVisible(false);
   };
 
-  // Close Bottom Sheet
-  const handleCloseModal = () => {
-    bottomSheetRef.current?.close();
-    // Reset task details 
-  setTaskDetails({ title: "", date: "", time: "", category: null });
-    setTimeout(() => {
-      navigation.setOptions({
-        tabBarStyle: {
-          display: "flex",
-          height: 74,
-          borderTopWidth: 1,
-          borderTopColor: "#232533",
-          elevation: 1,
-          zIndex: 1,
-        }
-      });
-    },350);
+  const handleInputChange = (field, value) => {
+    setTaskDetails(prev => ({ ...prev, [field]: value }));
   };
 
-  // Control tab bar visibility
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        navigation.setOptions({
-          tabBarStyle: {
-            display: "flex",
-            height: 74,
-            borderTopWidth: 1,
-            borderTopColor: "#232533",
-            elevation: 1,
-            zIndex: 1,
-          }
-        });
+  const validateTaskDetails = () => {
+    if (!taskDetails.title || !taskDetails.date || !taskDetails.time || !taskDetails.category) {
+      Alert.alert('Invalid Input', 'Please fill in all fields');
+      return false;
+    }
+    return true;
+  };
+
+  const handleCreateTask = async () => {
+    if (!validateTaskDetails()) return;
+    
+
+    try {
+      // Add task to local state first
+      const newTask = {
+        id: Date.now().toString(),
+        ...taskDetails,
+        status: 'pending'
       };
-    }, [navigation])
+      console.log("newTask", newTask);
+
+
+      // Schedule the notification
+      const notificationId = await NotificationService.scheduleTaskNotification(newTask);
+      
+      // Add notification ID to task
+      newTask.notificationId = notificationId;
+      
+      // Update tasks list
+      setTasks(prevTasks => [...prevTasks, newTask]);
+
+      // Save task to database appWrite
+
+      // await TaskService.createTask({
+      //           title: taskDetails.title,
+      //           date: taskDetails.date,
+      //           time: taskDetails.time,
+      //           category: taskDetails.category,
+      //           status: 'pending',
+      //           notificationId
+      //       });
+
+      // Reset form
+      setTaskDetails({
+        title: "",
+        date: "",
+        time: "",
+        category: null,
+      });
+      
+      setModalVisible(false);
+      Alert.alert('Success', 'Task scheduled successfully!');
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
+  const TaskBox = ({ title, bgColor, tasks = [] }) => (
+    <View className="mb-4">
+      <Text className="text-lg font-semibold text-black mb-2">{title}</Text>
+      <View className={`border ${bgColor} rounded-lg p-6 h-[285px]`}>
+        <ScrollView>
+          {tasks.length > 0 ? (
+            tasks.map((task) => (
+              <View key={task.id} className="mb-3 bg-white p-3 rounded-lg shadow">
+                <Text className="font-semibold">{task.title}</Text>
+                <Text className="text-gray-600">{`${task.date} at ${task.time}`}</Text>
+                <Text className="text-blue-600">{task.category}</Text>
+              </View>
+            )))
+           : (
+            <Text className="text-gray-600 text-center">No {title} Available</Text>
+          )}
+        </ScrollView>
+      </View>
+    </View>
   );
 
   return (
-    <GestureHandlerRootView className="flex-1">
-      <SafeAreaView className="flex-1 bg-white">
-        <ScrollView className="flex-1 py-16">
-          <View className="flex-1 justify-center items-center px-6 w-full">
-            {["Completed Task", "Pending Task"].map((title, index) => (
-              <View key={index} className="w-full mb-4">
-                <Text className="text-black font-semibold text-lg mb-2 text-left">{title}</Text>
-                <View className="border border-blue-400 rounded-lg p-6 h-[250px] flex justify-center items-center w-full">
-                  <Text className="text-gray-500">No {title} Available</Text>
-                </View>
-              </View>
-            ))}
-
-            {/* Create New Button */}
-            <TouchableOpacity
-              className="bg-blue-600 rounded-lg py-3 items-center w-full"
-              onPress={handleOpenModal}
-            >
-              <Text className="text-white font-semibold text-lg">Create New</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-
-        {/* Bottom Sheet */}
-        <BottomSheet
-          ref={bottomSheetRef}
-            
-          snapPoints={["66%"]}
-          enablePanDownToClose={false}
-          enableContentPanningGesture={false}
-          enableHandlePanningGesture={false}
-          index={-1}
-          backgroundComponent={null}
-          handleIndicatorStyle={{ backgroundColor: "transparent" }}
-          // animationConfigs={{
-          //   duration: 400,
-          //   easing: Easing.out(Easing.ease),
-          // }}
-        >
-          <BottomSheetScrollView
-            className="flex-1 p-5 bg-primary rounded-t-xl"
-            contentContainerStyle={{ flexGrow: 1 }}
+    <SafeAreaView className="flex-1 bg-white mb-20">
+      <ScrollView 
+        className="flex-1"
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingHorizontal: 16,
+          paddingBottom: 50,
+          marginTop: 40,
+        }}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        <View className="flex-1 mb-4">
+        <TaskBox 
+            title="Completed Task" 
+            bgColor="border-primary" 
+            tasks={tasks.filter(task => task.status === 'completed')}
+          />
+          <TaskBox 
+            title="Pending Tasks" 
+            bgColor="border-primary" 
+            tasks={tasks.filter(task => task.status === 'pending')}
+          />
+          
+          <TouchableOpacity 
+            className="bg-blue-600 rounded-lg py-3 items-center w-full mt-4"
+            onPress={() => setModalVisible(true)}
           >
-            {/* Drag Indicator */}
-            <View className="w-12 h-1 bg-white rounded-full self-center mb-2" />
+            <Text className="text-white font-semibold text-lg">Create New Task</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
 
-            {/* Header */}
-            <Text className="text-white text-lg font-semibold text-center mb-4">New Schedule Todo</Text>
+      {/* Date Picker */}
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleDateConfirm}
+        onCancel={() => setDatePickerVisible(false)}
+        minimumDate={new Date()}
+      />
 
-            {/* Title Input */}
-            <Text className="text-white font-medium mb-1">Title Task</Text>
-            <TextInput
-              className="bg-white rounded-lg px-4 py-4 mb-4 text-black"
-              placeholder="Enter task title"
-              value={taskDetails.title}
-              onChangeText={(text) => handleInputChange("title", text)}
-            />
+      {/* Time Picker */}
+      <DateTimePickerModal
+        isVisible={isTimePickerVisible}
+        mode="time"
+        onConfirm={handleTimeConfirm}
+        onCancel={() => setTimePickerVisible(false)}
+      />
 
-            {/* Category Selection */}
-            <Text className="text-white font-medium mb-2">Category</Text>
-            <View className="h-14 pl-[10px]">
-              <BottomSheetFlatList
+      {/* Create Task Modal */}
+      <Modal 
+        animationType="slide" 
+        transparent 
+        visible={modalVisible} 
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1"
+        >
+          <View className="flex-1 bg-black/50 justify-end">
+            <View className="bg-primary p-6 pt-3 rounded-t-2xl">
+              <View className="w-12 h-1 my-2 bg-white rounded-full self-center mb-2" />
+              
+              <Text className="text-white text-2xl font-semibold text-center mb-4">
+                New Task
+              </Text>
+
+              {/* Title Input */}
+              <Text className="text-white font-medium mb-1">Title</Text>
+              <TextInput 
+                className="bg-white rounded-lg px-4 py-4 mb-4 text-black" 
+                placeholder="Enter task title" 
+                value={taskDetails.title} 
+                onChangeText={(text) => handleInputChange("title", text)} 
+              />
+
+              {/* Category Selection */}
+              <Text className="text-white font-medium mb-2">Category</Text>
+              <FlatList
                 horizontal
+                showsHorizontalScrollIndicator={false}
                 data={categories}
                 keyExtractor={(item) => item}
-                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingVertical: 8 }}
                 renderItem={({ item }) => (
                   <TouchableOpacity
-                    className={`py-3 mr-4 rounded-lg h-[45px] w-[160px] ${
+                    className={`py-3 rounded-lg mr-4 w-48 ${
                       taskDetails.category === item ? "bg-white" : "bg-blue-400"
                     }`}
                     onPress={() => handleInputChange("category", item)}
                   >
-                    <Text className={taskDetails.category === item ? "text-blue-600 font-semibold text-center" : "text-white font-semibold text-center"}>
+                    <Text
+                      className={`text-center font-semibold ${
+                        taskDetails.category === item ? "text-blue-600" : "text-white"
+                      }`}
+                    >
                       {item}
                     </Text>
                   </TouchableOpacity>
                 )}
               />
-            </View>
 
-            {/* Date & Time Input */}
-            <View className="flex-row justify-between mt-4">
-              {/* Date Input */}
-              <View className="flex-1 mr-2">
-                <Text className="text-white font-medium mb-1">Date</Text>
-                <TextInput
-                  className="bg-white rounded-lg px-4 py-2 text-black"
-                  placeholder="dd/mm/yy"
-                  value={taskDetails.date}
-                  onChangeText={(text) => handleInputChange("date", text)}
-                />
+              {/* Date and Time Selection */}
+              <View className="flex-row gap-5 mt-4">
+                <View className="w-[48%]">
+                  <Text className="text-white font-medium mb-2">Date</Text>
+                  <TouchableOpacity 
+                    onPress={() => setDatePickerVisible(true)}
+                    className="relative"
+                  >
+                    <TextInput 
+                      className="bg-white rounded-lg p-3 text-center" 
+                      placeholder="Select Date" 
+                      value={taskDetails.date}
+                      editable={false}
+                    />
+                    <Image 
+                      source={icons.date} 
+                      style={{ width: 35, height: 35, position: "absolute", left: 3, top: 3 }}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                <View className="w-[48%]">
+                  <Text className="text-white font-medium mb-2">Time</Text>
+                  <TouchableOpacity 
+                    onPress={() => setTimePickerVisible(true)}
+                    className="relative"
+                  >
+                    <TextInput 
+                      className="bg-white rounded-lg p-3 text-center" 
+                      placeholder="Select Time"
+                      value={taskDetails.time}
+                      editable={false}
+                    />
+                    <Image 
+                      source={icons.time} 
+                      style={{ width: 35, height: 35, position: "absolute", left: 3, top: 3 }}
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
 
-              {/* Time Input */}
-              <View className="flex-1 ml-2">
-                <Text className="text-white font-medium mb-1">Time</Text>
-                <TextInput
-                  className="bg-white rounded-lg px-4 py-2 text-black"
-                  placeholder="hh:mm"
-                  value={taskDetails.time}
-                  onChangeText={(text) => handleInputChange("time", text)}
+              {/* Action Buttons */}
+              <View className="flex-row gap-5 mt-8">
+                <CustomButton
+                  title="Cancel"
+                  container="border border-white rounded-md py-2 flex-1"
+                  textStyles="text-white font-semibold"
+                  handlePress={() => setModalVisible(false)}
+                />
+                <CustomButton
+                  title="Create"
+                  container="bg-white rounded-md py-2 flex-1"
+                  textStyles="text-black font-semibold"
+                  handlePress={handleCreateTask}
                 />
               </View>
             </View>
-
-            {/* Buttons */}
-            <View className="flex-row gap-5 mt-8">
-              <CustomButton
-                title="Cancel"
-                container="border border-white rounded-md py-2 px-16"
-                textStyles="text-white font-semibold"
-                handlePress={handleCloseModal}
-              />
-              <CustomButton
-                title="Create"
-                container="bg-white rounded-md py-2 px-16 w-[48%]"
-                textStyles="text-black font-semibold"
-                handlePress={handleCloseModal}
-              />
-            </View>
-          </BottomSheetScrollView>
-        </BottomSheet>
-      </SafeAreaView>
-    </GestureHandlerRootView>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+    </SafeAreaView>
   );
 };
 
