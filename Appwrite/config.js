@@ -80,6 +80,56 @@ export class Service{
         }
     }
 
+    //get all tasks
+     async getAllTasks  (taskId)  {
+        if(!taskId){
+            try {
+                const response = await this.databases.listDocuments(
+                this.appwriteConfig.appwriteDatabaseId,
+                this.appwriteConfig.scheduleCollectionId,
+                
+                );
+                return response.documents;
+            } catch (error) {
+                console.error('Appwrite service :: getAllTasks :: error: ', error);
+                throw error;
+            }
+        }
+        else{
+            try {
+                const response = await this.databases.listDocuments(
+                this.appwriteConfig.appwriteDatabaseId,
+                this.appwriteConfig.scheduleCollectionId,
+                [Query.equal("id", taskId)]
+                
+                );
+                return response.documents;
+            } catch (error) {
+                console.error('Appwrite service :: getAllTasks :: error: ', error);
+                throw error;
+            }
+            
+        }
+            
+        }
+
+        //Update task status
+         async updateTaskStatus (documentId, newStatus )  {
+            console.log(documentId, newStatus)
+                try {
+                    const response = await this.databases.updateDocument(
+                        this.appwriteConfig.appwriteDatabaseId,
+                        this.appwriteConfig.scheduleCollectionId,
+                        documentId,
+                        { status: newStatus }
+                    );
+                    return response;
+                } catch (error) {
+                    console.error('Appwrite service :: updateTaskStatus :: error: ', error);
+                    throw error;
+                }
+            }
+
 
    
     

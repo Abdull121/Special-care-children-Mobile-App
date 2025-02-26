@@ -77,7 +77,7 @@ export class AuthService {
 
 
     async createAccount({ email, password, name }) {
-        console.log(this.appwriteConfig)
+        //console.log(this.appwriteConfig)
         try {
             const userAccount = await this.account.create(
                 ID.unique(),
@@ -117,8 +117,7 @@ export class AuthService {
                 throw new Error("Missing email or password");
             }
 
-            const currentUser = await this.getCurrentUser();
-            if (currentUser) await this.logout();
+            
 
             return await this.account.createEmailPasswordSession(email, password);
         } catch (error) {
@@ -146,13 +145,14 @@ export class AuthService {
             try {
                   //await this.account.deleteSessions();
             const currentAccount = await this.getAccount();
-            // console.log("current Account",currentAccount)
+             console.log("current Account",currentAccount)
             if (!currentAccount) throw Error;
         
             const currentUser = await this.databases.listDocuments(
                 this.appwriteConfig.appwriteDatabaseId,
                 this.appwriteConfig.childCollectionId,
                 [Query.equal("accountId", currentAccount.$id)]
+                
             );
 
             console.log(currentUser.documents[0])

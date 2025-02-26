@@ -12,9 +12,9 @@ import {
   Image,
   Alert
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import  NotificationService  from '../services/NotificationService';
+import  NotificationService  from '../../services/NotificationService';
 import CustomButton from "../../components/CustomButton";
 import icons from "../../constants/icons";
 import config from "../../Appwrite/config";
@@ -29,6 +29,8 @@ const Schedule = () => {
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [isTimePickerVisible, setTimePickerVisible] = useState(false);
   const [tasks, setTasks] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState([]);
+  //console.log(tasks);
   
   const [taskDetails, setTaskDetails] = useState({
     title: "",
@@ -40,7 +42,36 @@ const Schedule = () => {
 
   useEffect(() => {
      setupNotifications();
+     
+     fetchTasks();
+
+     
+
+     
   }, []);
+
+  const fetchTasks = async () => {
+    console.log("fetching tasks..");
+    try {
+      const response = await config.getAllTasks();
+      console.log(response);
+  
+      // Separate tasks based on status
+      const pending = response.filter(task => task.status !== "completed");
+      const completed = response.filter(task => task.status === "completed");
+  
+      setTasks(pending);
+      setCompletedTasks(completed);
+  
+      console.log("fetching tasks Complete");
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch tasks');
+    }
+  };
+  
+  
+
+
 
   const setupNotifications = async () => {
     try {
@@ -90,11 +121,12 @@ const Schedule = () => {
         ...taskDetails,
         status: 'pending'
       };
-      console.log("newTask", newTask);
+      //console.log("newTask", newTask);
 
 
       // Schedule the notification
       const notificationId = await NotificationService.scheduleTaskNotification(newTask);
+      console.log("Created notificationId is:", notificationId);
       
       // Add notification ID to task
       newTask.notificationId = notificationId;
@@ -113,10 +145,11 @@ const Schedule = () => {
                 time: taskDetails.time,
                 category: taskDetails.category,
                 status: 'pending',
-                notificationId
+                notificationId,
+                id: newTask.id,
             });
             if(!result) throw new Error('Task creation failed');
-            console.log('Task created successfully', result);
+            //console.log('Task created successfully', result);
             setModalVisible(false);
       // Reset form
       setTaskDetails({
@@ -134,7 +167,72 @@ const Schedule = () => {
     }
   };
 
-  const TaskBox = ({ title, bgColor, tasks = [] }) => {
+
+
+  // const handleToggleTaskStatus = useCallback ((taskId, ) => {
+  //   //console.log("toggle task id", taskId);
+  //   setCompletedTasks((prevCompleted) => {
+  //     if (prevCompleted.some((task) => task.id === taskId)) {
+  //       // If task is already completed, remove it from completed tasks
+  //       return prevCompleted.filter((task) => task.id !== taskId);
+  //     } else {
+  //       // Add to completed tasks
+  //       const task = tasks.find((task) => task.id === taskId);
+  //       if (task) {
+  //         return [...prevCompleted, { ...task, status: "completed" }];
+  //       }
+  //     }
+  //     return prevCompleted;
+  //   });
+  // },[tasks]);
+
+
+  const handleToggleTaskStatus = useCallback(async (taskId, updateId, notificationId) => {
+    // console.log(updateId)
+    console.log(taskId)
+    try {
+      // Determine new status
+      const isCurrentlyCompleted = completedTasks.some(ct => ct.id === taskId);
+
+      const response = await config.getAllTasks(taskId);
+      console.log("get Document",response[0].$id)
+      const updateId = response[0].$id;
+
+
+
+      const newStatus = isCurrentlyCompleted ? 'pending' : 'completed';
+  
+      // Update backend first
+      await config.updateTaskStatus(updateId, newStatus);
+  
+      // Then update local state
+      setCompletedTasks(prevCompleted => {
+        if (isCurrentlyCompleted) {
+          // Cancel completion
+          return prevCompleted.filter(task => task.id !== taskId);
+        } else {
+          // Mark as completed and cancel notification
+          const task = tasks.find(task => task.id === taskId);
+          if (task) {
+            NotificationService.cancelNotification(notificationId);
+            return [...prevCompleted, { ...task, status: "completed" }];
+          }
+        }
+        return prevCompleted;
+      });
+  
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update task status');
+      console.error('Update error:', error);
+    }
+  }, [tasks, completedTasks]);
+
+
+
+  const TaskBox = ({ title, bgColor, tasks = [], isCompleted }) => {
+
+    // console.log("tasks:", tasks);
+    // console.log("title:", title);
   
     const formatDate = (taskDate, taskTime) => {
       try {
@@ -196,11 +294,22 @@ const Schedule = () => {
                   <TaskCard
                     title={task.title}
                     description={task.description}
-                    
                     time={formatDate(task.date, task.time)}
                     category={task.category}
                     available={true}
-                  />
+                    taskId={task.id}
+                    checked={completedTasks.some(ct => ct.id === task.id)}
+                    onToggle={(taskId) => handleToggleTaskStatus(
+                      taskId, 
+                      // task.updateId, 
+                      task.notificationId
+                    )}
+                    updateId={task.updateId}
+                    status={isCompleted}
+                    notificationId={task.notificationId}
+                    
+                    
+                  />  
                 </View>
               ))
             ) : (
@@ -232,15 +341,19 @@ const Schedule = () => {
             title="Completed Task" 
             bgColor="border-primary"
             
+            tasks={completedTasks}
+            isCompleted={true}
             
-            tasks={tasks.filter(task => task.status === 'completed')}
+            
+            // tasks={tasks.filter(task => task.status === 'completed')}
           />
           <TaskBox 
             title="Pending Tasks" 
             bgColor="border-primary" 
-            
+            tasks={tasks}
+            isCompleted={false}
     
-             tasks={tasks.filter(task => task.status === 'pending')}
+            //  tasks={tasks.filter(task => task.status === 'pending')}
           />
           
           <TouchableOpacity 
