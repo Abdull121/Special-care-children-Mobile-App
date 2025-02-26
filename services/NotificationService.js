@@ -11,9 +11,9 @@ Notifications.setNotificationHandler({
 
 const NotificationService = {
   initialize: async () => {
-    if (!Device.isDevice) {
-      throw new Error('Must use physical device for Push Notifications');
-    }
+    // if (!Device.isDevice) {
+    //   throw new Error('Must use physical device for Push Notifications');
+    // }
 
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
@@ -105,9 +105,16 @@ const NotificationService = {
   },
 
   cancelNotification: async (notificationId) => {
-    if (notificationId) {
-      await Notifications.cancelScheduledNotificationAsync(notificationId);
+    try{
+      if (notificationId) {
+        console.log("cancelNotifcation FUnction call",notificationId)
+        await Notifications.cancelScheduledNotificationAsync(notificationId);
+      }
+    }catch (error) {
+      console.error('Notification Error:', error);
+      throw error;
     }
+    
   }
 };
 export  default NotificationService;
