@@ -10,6 +10,7 @@ import smile from "../assets/icons/smile.png";
 import flag from "../assets/icons/flag.png";
 import date from "../assets/icons/date.png";
 import time from "../assets/icons/time.png";
+import direction from "../assets/icons/direction.png";
 
 export default {
   google,
@@ -24,4 +25,5 @@ export default {
   flag,
   date,
   time,
+  direction,
 };

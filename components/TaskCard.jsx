@@ -1,11 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, Image, Pressable } from "react-native";
 import icons from "../constants/icons";
-import  NotificationService  from '../services/NotificationService';
-import config from '../Appwrite/config';
 
-
-// In your TaskCard component
 const TaskCard = ({ 
   taskId,
   checked,  // Receive checked status from parent
@@ -15,10 +11,9 @@ const TaskCard = ({
   time, 
   available, 
   category,
-  onToggle ,
+  onToggle,
   status,
-  notificationId ,
-  
+  notificationId,
 }) => {
   const handlePress = () => {
     if (onToggle) {
@@ -30,22 +25,17 @@ const TaskCard = ({
     <View className="absolute right-4 top-10 items-center justify-center w-16 h-16">
       {status ? (
         // Completed text for completed tasks
-              <View className="w-full h-full justify-center items-center">
-                  <View className=" px-3 py-1  rounded-full max-w-[120px]">
-                    <Text Text 
-                       className="text-primary text-sm font-semibold w-20" 
-                        
-                        
-                      >
-                       Completed
-                  </Text>
-                </View>
-            </View>
-      ): (
+        <View className="w-full h-full justify-center items-center">
+          <View className="px-3 py-1 rounded-full max-w-[120px]">
+            <Text className="text-primary text-sm font-semibold w-20">
+              Completed
+            </Text>
+          </View>
+        </View>
+      ) : (
         // Checkbox for pending tasks
         <Pressable
           onPress={handlePress}
-          disabled={checked}
           className="w-full h-full rounded-full border-4 justify-center items-center border-primary"
         >
           {checked && (
@@ -54,7 +44,7 @@ const TaskCard = ({
             </View>
           )}
         </Pressable>
-      ) }
+      )}
     </View>
   );
 
