@@ -63,9 +63,13 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.abdullahdev.specialcare", // Fixed "Package" key
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We need your location to find nearby clinics"
+      },
     },
     android: {
       "useNextNotificationsApi": true,
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
       adaptiveIcon: {
         foregroundImage: "./assets/images/adaptive-icon.png",
         backgroundColor: "#ffffff",
@@ -80,6 +84,12 @@ export default {
     plugins: [
       "expo-router",
        //"expo-secure-store",
+       [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow SpecialCare to use your location."
+        }
+      ],
        [
         "expo-notifications",
         {

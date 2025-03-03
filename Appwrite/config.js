@@ -131,6 +131,29 @@ export class Service{
             }
 
 
+
+
+            //update Child Mood
+            //Update task status
+         async updateChildMood (emoji, childMood )  {
+            
+                try {
+                    const response = await this.databases.updateDocument(
+                        this.appwriteConfig.appwriteDatabaseId,
+                        "67c3616c0031fd3e0340",
+                        "67c36231000556abe6be",
+                        { emoji: emoji,
+                            childMood: childMood 
+                         }
+                    );
+                    return response;
+                } catch (error) {
+                    console.error('Appwrite service :: updateTaskStatus :: error: ', error);
+                    throw error;
+                }
+            }
+
+
    
     
     

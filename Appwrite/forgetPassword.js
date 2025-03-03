@@ -189,10 +189,4 @@ const resetPassword = async (email, newPassword) => {
 }
 
 
-
-  
-  
-
-
-
 export { sendOTP,verifyOTP, checkEmail, resetPassword};
