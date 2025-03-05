@@ -1,53 +1,4 @@
 
-
-// {
-//   "expo": {
-//     "name": "special-care",
-//       "slug": "special-care",
-//         "version": "1.0.0",
-//           "orientation": "portrait",
-//             "icon": "./assets/images/icon.png",
-//               "scheme": "myapp",
-//                 "userInterfaceStyle": "automatic",
-//                   "newArchEnabled": true,
-//                     "ios": {
-//       "supportsTablet": true,
-//         "Package": "com.abdullahdev.specialcare",
-//     },
-//     "android": {
-//       "adaptiveIcon": {
-//         "foregroundImage": "./assets/images/adaptive-icon.png",
-//           "backgroundColor": "#ffffff",
-//             "package": "com.abdullahdev.specialcare"
-//       }
-//     },
-//     "web": {
-//       "bundler": "metro",
-//         "output": "static",
-//           "favicon": "./assets/images/favicon.png"
-//     },
-//     "plugins": [
-//       "expo-router",
-//       [
-//         "expo-splash-screen",
-//         {
-//           "image": "./assets/images/splash-icon.png",
-//           "imageWidth": 200,
-//           "resizeMode": "contain",
-//           "backgroundColor": "#ffffff"
-//         }
-//       ],
-//       "expo-font"
-//     ],
-//       "experiments": {
-//       "typedRoutes": true
-//     },
-//     extra: {
-//       APPWRITE_URL: process.env.API_URL
-
-//     }
-//   }
-// }
 import 'dotenv/config'; // Import dotenv for environment variables
 
 export default {
@@ -130,6 +81,8 @@ export default {
       USER_COLLECTION_ID: process.env.USER_COLLECTION_ID,
       CHILD_COLLECTION_ID: process.env.CHILD_COLLECTION_ID,
       SCHEDULE_COLLECTION_ID: process.env.SCHEDULE_COLLECTION_ID,
+      YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY,
+      PLACE_API: process.env.PLACE_API_KEY,
       "eas": {
         "projectId": "5a0cff51-ca42-43b8-93da-1f263e1db50e"
       }
