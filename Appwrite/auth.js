@@ -143,7 +143,7 @@ export class AuthService {
             // Get Current User
         async  getCurrentUser() {
             try {
-                  //await this.account.deleteSessions();
+                 // await this.account.deleteSessions();
             const currentAccount = await this.getAccount();
              console.log("current Account",currentAccount)
             if (!currentAccount) throw Error;

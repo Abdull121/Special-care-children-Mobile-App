@@ -130,7 +130,6 @@ const Resources = () => {
     }
   };
 
-
   const fetchYouTubeVideos = async () => {
     try {
       setLoading(true);
