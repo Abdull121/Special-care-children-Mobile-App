@@ -11,6 +11,7 @@ import {
   Platform,
   Image,
   Alert,
+  ActivityIndicator
 } from "react-native";
 import { unstable_batchedUpdates } from 'react-dom';
 import React, { useState, useEffect, useCallback, useMemo } from "react";
@@ -20,18 +21,19 @@ import CustomButton from "../../components/CustomButton";
 import icons from "../../constants/icons";
 import config from "../../Appwrite/config";
 import TaskCard from "../../components/TaskCard";
-import { format, isToday, isTomorrow, set } from "date-fns";
+import { format, isToday, isTomorrow, } from "date-fns";
 
-const categories = ["Appointment", "Activity", "Therapy", "Education"];
+const categories = ["Appointment", "Activity", "Therapy", "Medication"];
 
 const Schedule = () => {
+  
   const [modalVisible, setModalVisible] = useState(false);
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [isTimePickerVisible, setTimePickerVisible] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
   const [responses, setResponses] = useState([]);
-  //console.log(tasks);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [taskDetails, setTaskDetails] = useState({
     title: "",
@@ -45,6 +47,7 @@ const Schedule = () => {
     setupNotifications();
 
     fetchTasks();
+    
   }, []);
   const getTaskStatistics = (tasks, completedTasks) => {
     const totalTasks = tasks.length + completedTasks.length;
@@ -61,6 +64,8 @@ const Schedule = () => {
           childMood: "Happy",
           percentage: completionPercentage,
           pendingTasks: pendingTasks,
+          completedCount: completedCount,
+          totalTasks: totalTasks,
         };
       if (completionPercentage >= 80)
         return {
@@ -68,6 +73,8 @@ const Schedule = () => {
           childMood: "Energetic",
           percentage: completionPercentage,
           pendingTasks: pendingTasks,
+          completedCount: completedCount,
+          totalTasks: totalTasks,
         };
       if (completionPercentage >= 50)
         return {
@@ -75,6 +82,8 @@ const Schedule = () => {
           childMood: "Calm ",
           percentage: completionPercentage,
           pendingTasks: pendingTasks,
+          completedCount: completedCount,
+          totalTasks: totalTasks,
         };
       if (completionPercentage >= 30)
         return {
@@ -82,12 +91,16 @@ const Schedule = () => {
           childMood: "Sad",
           percentage: completionPercentage,
           pendingTasks: pendingTasks,
+          completedCount: completedCount,
+          totalTasks: totalTasks,
         };
       return {
         emoji: "Angry",
         childMood: "😡",
         percentage: completionPercentage,
         pendingTasks: pendingTasks,
+        completedCount: completedCount,
+        totalTasks: totalTasks,
       };
     }
 
@@ -96,13 +109,20 @@ const Schedule = () => {
       childMood: "Happy",
       percentage: completionPercentage,
       pendingTasks: pendingTasks,
+      completedCount: completedCount,
+      totalTasks: totalTasks,
     };
   };
   const taskStatistics = useMemo(() => getTaskStatistics(tasks, completedTasks), [tasks, completedTasks]);
   useEffect(() => {
     console.log(taskStatistics);
-    const { emoji, childMood } = taskStatistics;
-    updateChildMood(emoji, childMood);
+    const { emoji, childMood, completedCount, totalTasks } = taskStatistics;
+    console.log("useEffect", emoji, childMood, completedCount, totalTasks);
+    updateChildMood(emoji, childMood, completedCount, totalTasks);
+    createChildMood(emoji, childMood, completedCount, totalTasks);
+
+    
+    
   }, [taskStatistics]);
 
   const fetchTasks = async () => {
@@ -127,13 +147,43 @@ const Schedule = () => {
     }
   };
 
+
+  //create Child Mode in appWrite
+
+  const createChildMood = async (emoji, childMood, completedCount, totalTasks  ) => {
+    try {
+      console.log("before sending", emoji, childMood, completedCount, totalTasks);
+      const response = await config.createChildMood(emoji, childMood,  completedCount, totalTasks);
+      console.log("crete Child Mood",response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   
 
   //update Child Mood in AppWrite
-  const updateChildMood = async (emoji, childMood) => {
+  const updateChildMood = async (emoji, childMood, completedCount, totalTasks  ) => {
+
+    
+    
     try {
-      const response = await config.updateChildMood(emoji, childMood);
-      console.log(response);
+      
+        const  getAllChildMood = await config.fetchChildMood();
+        // if(!getAllChildMood.length > 0) throw new Error("No child mood found");
+    
+
+         
+       console.log("getAllChildMood", getAllChildMood);
+      
+        const documentId = getAllChildMood[0].$id
+      
+      
+      const response = await config.updateChildMood(emoji, childMood,  completedCount, totalTasks, documentId );
+      console.log("updated",response);
+      
+      
+      
+
     } catch (error) {
       console.log(error);
     }
@@ -183,6 +233,7 @@ const Schedule = () => {
 
   const handleCreateTask = async () => {
     if (!validateTaskDetails()) return;
+    setIsLoading(true); // Set loading state to true
 
     try {
       // Add task to local state first
@@ -197,7 +248,7 @@ const Schedule = () => {
       const notificationId = await NotificationService.scheduleTaskNotification(
         newTask
       );
-      console.log("Created notificationId is:", notificationId);
+      // console.log("Created notificationId is:", notificationId);
 
       // Add notification ID to task
       newTask.notificationId = notificationId;
@@ -221,7 +272,19 @@ const Schedule = () => {
       });
       if (!result) throw new Error("Task creation failed");
       //console.log('Task created successfully', result);
+
+
+      //destructuring taskStatistics
+      const { emoji, childMood, completedCount, totalTasks } = taskStatistics;
+      //call the childMood function for creating childMood
+      createChildMood(emoji, childMood, completedCount, totalTasks);
+  
+
+
+
       setModalVisible(false);
+      setIsLoading(false); // Set loading state to false
+
 
       // Reset form
       setTaskDetails({
@@ -235,6 +298,7 @@ const Schedule = () => {
       // Alert.alert("Success", "Task scheduled successfully!");
     } catch (error) {
       Alert.alert("Error", error.message);
+      setIsLoading(false); // Set loading state to false
     }
   };
 
@@ -249,9 +313,11 @@ const Schedule = () => {
 
         // Fetch the task document ID
         const response = await config.getAllTasks(taskId);
+        console.log(response)
         const updateId = response[0].$id;
 
         const newStatus = isCurrentlyCompleted ? "pending" : "completed";
+        console.log("task Status", newStatus);  
 
         // Update backend
         await config.updateTaskStatus(updateId, newStatus);
@@ -279,11 +345,11 @@ const Schedule = () => {
               console.log(
                 getTaskStatistics([...prevTasks], [...completedTasks])
               );
-              const { emoji, childMood } = getTaskStatistics(
+              const { emoji, childMood,  completedCount, totalTasks} = getTaskStatistics(
                 [...prevTasks],
                 [...completedTasks]
               );
-              updateChildMood(emoji, childMood);
+              updateChildMood(emoji, childMood, completedCount, totalTasks );
 
               return result;
 
@@ -559,8 +625,13 @@ const Schedule = () => {
                   handlePress={() => setModalVisible(false)}
                 />
                 <CustomButton
-                  title="Create"
-                  container="bg-white rounded-md py-2 flex-1"
+                  title={isLoading ? (
+                                <ActivityIndicator size="small" color="#fff" />
+                              ) : (
+                                "Create"
+                              )}
+                  // container="bg-white rounded-md py-2 flex-1"
+                  container={`bg-white rounded-md py-2 flex-1 ${isLoading ? "opacity-50" : ""}`}
                   textStyles="text-black font-semibold"
                   handlePress={handleCreateTask}
                 />

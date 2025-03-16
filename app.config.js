@@ -83,6 +83,7 @@ export default {
       SCHEDULE_COLLECTION_ID: process.env.SCHEDULE_COLLECTION_ID,
       YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY,
       PLACE_API: process.env.PLACE_API_KEY,
+      CHILD_MODE_COLLECTION_ID: process.env.CHILD_MOOD_COLLECTION_ID,
       "eas": {
         "projectId": "5a0cff51-ca42-43b8-93da-1f263e1db50e"
       }

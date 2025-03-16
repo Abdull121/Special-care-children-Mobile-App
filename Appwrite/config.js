@@ -14,6 +14,7 @@ export class Service{
         userCollectionId: Constants.expoConfig.extra.USER_COLLECTION_ID,
         childCollectionId: Constants.expoConfig.extra.CHILD_COLLECTION_ID,
         scheduleCollectionId: Constants.expoConfig.extra.SCHEDULE_COLLECTION_ID,
+        CHILD_MODE_COLLECTION_ID: Constants.expoConfig.extra.CHILD_MODE_COLLECTION_ID,
         platform: Constants.expoConfig.extra.PLATFORM,
     };
     
@@ -61,15 +62,35 @@ export class Service{
     }
 
 
+    //get current Account id
+    async  getAccount() {
+        try {
+          const currentAccount = await this. account.get();
+      
+          return currentAccount.$id;
+        } catch (error) {
+          throw new Error(error);
+        }
+      }
+
+
+        // -> TasK service Started <-
+
+        
     //task created
 
      async taskCreated (taskData) {
+        const userId = await this.getAccount();
+       
         try {
             const response = await this.databases.createDocument(
                 this.appwriteConfig.appwriteDatabaseId,
                 this.appwriteConfig.scheduleCollectionId,
                 ID.unique(),
-                taskData
+                {
+                    ...taskData,
+                    userId: userId, // Store user ID separately
+                }
                 
                 
             );
@@ -81,21 +102,25 @@ export class Service{
     }
 
     //get all tasks
-     async getAllTasks  (taskId)  {
+    async getAllTasks(taskId) {
+        //console.log(taskId)
         if(!taskId){
-            try {
-                const response = await this.databases.listDocuments(
+            const accountId = await this.getAccount();
+        try {
+            const response = await this.databases.listDocuments(
                 this.appwriteConfig.appwriteDatabaseId,
                 this.appwriteConfig.scheduleCollectionId,
-                
-                );
-                return response.documents;
-            } catch (error) {
-                console.error('Appwrite service :: getAllTasks :: error: ', error);
-                throw error;
-            }
+                [Query.equal("userId", accountId)] 
+            );
+            return response.documents;
+        } catch (error) {
+            console.error('Appwrite service :: getAllTasks :: error: ', error);
+            throw error;
+        }
+
         }
         else{
+
             try {
                 const response = await this.databases.listDocuments(
                 this.appwriteConfig.appwriteDatabaseId,
@@ -109,9 +134,14 @@ export class Service{
                 throw error;
             }
             
-        }
             
         }
+        
+    }
+
+    
+
+
 
         //Update task status
          async updateTaskStatus (documentId, newStatus )  {
@@ -131,24 +161,102 @@ export class Service{
             }
 
 
+            //get child mood for update because we need to update the child mood that required a document id
+        async fetchChildMood() {
+
+            try {
+                const userId = await this.getAccount(); // Get current user
+                console.log(userId)
+                const response = await this.databases.listDocuments(
+                    this.appwriteConfig.appwriteDatabaseId,
+                    "67c3616c0031fd3e0340", // Collection ID
+                    [Query.equal("id",userId)] // Fetch only current user’s todos
+                );  
+                    console.log("fetchChild Moode DATA",response.documents)
+                return response.documents; // Returns an array of todo documents
+            } catch (error) {
+                console.error("Error fetching todos:", error);
+                return [];
+            }
+        }
+
+
+            //create child mood service
+            async createChildMood (emoji, childMood, completedCount, totalTasks )  {
+                
+                console.log(emoji, childMood, completedCount, totalTasks)
+
+               const dataExist = await this.fetchChildMood()
+               console.log(dataExist.length)
+                if(dataExist.length === 0 ){
+                    console.log("data not exist")
+                    // create new document
+                    const userId = await this.getAccount();
+                
+                    try {
+                        const response = await this.databases.createDocument(
+                            this.appwriteConfig.appwriteDatabaseId,
+                            "67c3616c0031fd3e0340",
+                            ID.unique(),//attach user id to the child mood
+
+
+                            //attributes fields
+                            {
+                                id:userId,
+                                emoji: emoji,
+                                childMood: childMood ,
+                                totalTask:totalTasks.toString(),
+                                completedTask:completedCount.toString()
+        
+                            }
+                            
+                            
+                        );
+                        return response;
+                    } catch (error) {
+                        console.error('Appwrite service :: createChildMood :: error: ', error);
+                        throw error;
+            }
+
+
+                }
+                return []
+                
+
+                
+               
+        }
+
+
+
+        
+        
 
 
             //update Child Mood
-            //Update task status
-         async updateChildMood (emoji, childMood )  {
+         async updateChildMood (emoji, childMood, completedCount, totalTasks, documentId )  {
+            console.log(emoji, childMood, completedCount, totalTasks, documentId)
+
+
             
                 try {
                     const response = await this.databases.updateDocument(
                         this.appwriteConfig.appwriteDatabaseId,
-                        "67c3616c0031fd3e0340",
-                        "67c36231000556abe6be",
-                        { emoji: emoji,
-                            childMood: childMood 
-                         }
+                        "67c3616c0031fd3e0340", // collection id
+                        documentId,             // document id
+                        {   emoji: emoji,
+                            childMood: childMood ,
+                            totalTask:totalTasks.toString(),
+                            completedTask:completedCount.toString()
+
+
+                         },
+                         
+
                     );
                     return response;
                 } catch (error) {
-                    console.error('Appwrite service :: updateTaskStatus :: error: ', error);
+                    console.error('Appwrite service :: updateChild MOOD :: error: ', error);
                     throw error;
                 }
             }
