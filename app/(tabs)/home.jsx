@@ -40,17 +40,17 @@ const Home = () => {
       {/* Profile Section */}
       <View className="flex-row items-center mt-5 mb-4 bg-white">
         <Image
-          source={{ uri: user.avatar }}
+          source={{ uri: user?.avatar }}
           className="w-12 h-12 rounded-full mr-3"
         />
         <View>
-          <Text className="text-lg font-bold">{user.childName}</Text>
-          <Text className="text-gray-500 text-sm">Age, {user.age} Years</Text>
+          <Text className="text-lg font-bold">{user?.childName}</Text>
+          <Text className="text-gray-500 text-sm">Age, {user?.age} Years</Text>
         </View>
       </View>
 
       {/* Greeting */}
-      <Text className="text-2xl font-bold">Hello, {user.childName}</Text>
+      <Text className="text-2xl font-bold">Hello, {user?.childName}</Text>
       <Text className="text-gray-500 text-base mb-5">Make your day easy with us.</Text>
 
       {/* Reflection & Task Progress */}
@@ -64,7 +64,7 @@ const Home = () => {
           />
           <Text className="text-white text-sm mt-8">Daily Reflection</Text>
           <Text className="text-white text-lg font-bold mt-1">
-            Hello, {user.childName} is feeling joyful now!
+            Hello, {user?.childName} is feeling joyful now!
           </Text>
         </View>
 
