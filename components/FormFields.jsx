@@ -11,6 +11,7 @@ const FormFields = ({
   otherStyle,
   secureTextEntry,
   textColor,
+ 
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -46,6 +47,7 @@ const FormFields = ({
 
             textAlignVertical: "center",
           }}
+          
           value={value}
           placeholder={placeholder}
           placeholderTextColor="#A4A6A6"

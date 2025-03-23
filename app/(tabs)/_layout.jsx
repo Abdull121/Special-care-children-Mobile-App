@@ -4,7 +4,7 @@ import { Image, Text, View } from "react-native";
 
 import  icons  from "../../constants/icons";
 // import { Loader } from "../../components";
-import { useGlobalContext } from "../../context/GlobalProvider";
+// import { useGlobalContext } from "../../context/GlobalProvider";
 import { ActivityIndicator } from "react-native-web";
 
 const TabIcon = ({ icon, color, name, focused }) => {
@@ -28,14 +28,14 @@ const TabIcon = ({ icon, color, name, focused }) => {
 };
 
 const TabLayout = () => {
-  const { loading, isLogged } = useGlobalContext();
+  // const { loading, isLogged } = useGlobalContext();
 
-  if (!loading && !isLogged) return <Redirect href="/login" />;
+  // if (!loading && !isLogged) return <Redirect href="/login" />;
 
   return (
     <>
 
-  {loading ? (
+  {false ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color="#0166FC" />
         </View>

@@ -1,0 +1,128 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Index Screen matches snapshot 1`] = `
+<View
+  accessibilityIgnoresInvertColors={true}
+>
+  <Image
+    className="flex-1 justify-center items-center"
+    resizeMode="cover"
+    source={
+      {
+        "testUri": "../../../assets/images/background.png",
+      }
+    }
+    style={
+      [
+        {
+          "bottom": 0,
+          "left": 0,
+          "position": "absolute",
+          "right": 0,
+          "top": 0,
+        },
+        {
+          "height": undefined,
+          "width": undefined,
+        },
+        undefined,
+      ]
+    }
+  />
+  <RNCSafeAreaView
+    edges={
+      {
+        "bottom": "additive",
+        "left": "additive",
+        "right": "additive",
+        "top": "additive",
+      }
+    }
+  >
+    <RCTScrollView
+      contentContainerStyle={
+        {
+          "height": "100%",
+        }
+      }
+    >
+      <View>
+        <View
+          className="w-full justify-center items-center px-6 h-[85vh]"
+        >
+          <Text
+            className="font-heading text-secondary-Default text-[34px] mb-[35px]"
+          >
+            SPECIAL CARE
+          </Text>
+          <Image
+            className="w-[231px] h-[214px]"
+            resizeMode="contain"
+            source={
+              {
+                "testUri": "../../../assets/images/children.png",
+              }
+            }
+          />
+          <Text
+            className="text-center text-secondary-Default text-[15px] font-pregular leading-6 mt-[20px]"
+          >
+            Supporting children with special needs and their caregivers Comprehensive care management for physical, educational, and emotional needs.
+          </Text>
+          <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "alignItems": "center",
+                "backgroundColor": "#fff",
+                "borderRadius": 4,
+                "display": "flex",
+                "flexDirection": "row",
+                "height": 42,
+                "justifyContent": "center",
+                "marginTop": 41,
+                "minHeight": 42,
+                "opacity": 1,
+                "width": 231,
+              }
+            }
+            testID="get-started-button"
+          >
+            <Text
+              className="text-center text-black-Default text-[14px] font-psemibold"
+            >
+              Get Started
+            </Text>
+          </View>
+        </View>
+      </View>
+    </RCTScrollView>
+  </RNCSafeAreaView>
+</View>
+`;

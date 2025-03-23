@@ -152,6 +152,7 @@ const login = () => {
             value={form.password}
             handleChangeText={(e) => setForm({ ...form, password: e })}
             otherStyle="mt-7"
+            
           />
           {errors.password ? (
             <Text className="text-red-500 mt-1">{errors.password}</Text>

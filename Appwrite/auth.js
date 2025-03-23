@@ -2,6 +2,7 @@ import { Client, Account, ID, OAuthProvider, Databases, Query } from "react-nati
 import Constants from 'expo-constants';
 import * as Linking from 'expo-linking';
 import { openAuthSessionAsync } from "expo-web-browser";
+import { Alert } from "react-native";
 
 
 
@@ -111,20 +112,38 @@ export class AuthService {
     }
 
     async login({ email, password }) {
-        console.log(email, password)
         try {
-            if (!email || !password) {
-                throw new Error("Missing email or password");
+          if (!email || !password) {
+            throw new Error("Missing email or password");
+          }
+      
+          // Check for existing session
+          try {
+            const currentAccount = await this.account.get();
+            if (currentAccount) {
+              // Delete all active sessions
+              await this.account.deleteSessions();
             }
-
-            
-
-            return await this.account.createEmailPasswordSession(email, password);
+          } catch (error) {
+            // Ignore "user not logged in" errors
+            if (error.code !== 401) {
+              console.warn("Session cleanup warning:", error);
+            }
+          }
+      
+          // Create new session
+          return await this.account.createEmailPasswordSession(email, password);
         } catch (error) {
-            console.error("login error::", error);
-            throw error;
+          console.error("Login error:", error);
+          
+          // Handle specific session conflict error
+          if (error.code === 409) {
+            throw new Error("Session already exists. Please logout first.");
+          }
+          
+          throw error;
         }
-    }
+      }
 
     // Get Account
     async  getAccount() {
@@ -143,10 +162,13 @@ export class AuthService {
             // Get Current User
         async  getCurrentUser() {
             try {
-                 // await this.account.deleteSessions();
+                //await this.account.deleteSessions();
             const currentAccount = await this.getAccount();
              console.log("current Account",currentAccount)
-            if (!currentAccount) throw Error;
+             if (!currentAccount) {
+                console.error("No authenticated user found.");
+                return false;
+            }
         
             const currentUser = await this.databases.listDocuments(
                 this.appwriteConfig.appwriteDatabaseId,
@@ -155,15 +177,30 @@ export class AuthService {
                 
             );
 
+            if (!currentUser.documents.length) {
+                console.error("No user found in the database for the current account.");
+                return null;
+            }
+
             console.log(currentUser.documents[0])
+            console.log("current user",currentAccount)
            
         
-            if (!currentUser) throw Error;
+            // if (!currentUser) throw Error;
         
             return currentUser.documents[0];
-            } catch (error) {
-            console.log(error);
-            return null;
+            }
+             catch (error) {
+                if (
+                    error.message.includes("missing scope (account)") ||
+                    error.code === 401 || // Unauthorized
+                    error.code === 403    // Forbidden
+                  ) {
+                    console.log("User not authenticated");
+                  } else {
+                    console.error("Error in getCurrentUser:", error);
+                  }
+                  return null;
             }
         }
 
