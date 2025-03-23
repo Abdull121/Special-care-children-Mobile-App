@@ -15,11 +15,14 @@ const TaskCard = ({
   status,
   notificationId,
 }) => {
+
+  
   const handlePress = () => {
     if (onToggle) {
       onToggle(taskId, notificationId);
     }
   };
+  
   
   const StatusIndicator = ({ checked }) => (
     <View className="absolute right-4 top-10 items-center justify-center w-16 h-16">
@@ -53,7 +56,7 @@ const TaskCard = ({
       {/* Status indicator (checkbox or completed text) */}
       {available && <StatusIndicator checked={checked} />}
 
-      {/* Rest of your card content remains the same */}
+      
       <View className="mr-6">
         <Text className="text-lg font-bold mb-1" numberOfLines={1}>
           {title}

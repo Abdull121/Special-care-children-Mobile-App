@@ -21,7 +21,8 @@ import CustomButton from "../../components/CustomButton";
 import icons from "../../constants/icons";
 import config from "../../Appwrite/config";
 import TaskCard from "../../components/TaskCard";
-import { format, isToday, isTomorrow, } from "date-fns";
+import { format, isToday, isTomorrow, parse, } from "date-fns";
+
 
 const categories = ["Appointment", "Activity", "Therapy", "Medication"];
 
@@ -127,6 +128,7 @@ const Schedule = () => {
 
   const fetchTasks = async () => {
     console.log("fetching tasks..");
+    setIsLoading(true);
     try {
       const response = await config.getAllTasks();
 
@@ -144,6 +146,9 @@ const Schedule = () => {
       console.log("fetching tasks Complete");
     } catch (error) {
       Alert.alert("Error", "Failed to fetch tasks");
+    }
+    finally {
+      setIsLoading(false); // Stop loading spinner
     }
   };
 
@@ -213,9 +218,25 @@ const Schedule = () => {
     setTimePickerVisible(false);
   };
 
-  const handleInputChange = (field, value) => {
-    setTaskDetails((prev) => ({ ...prev, [field]: value }));
+
+
+  //reduce the number of calls to the handleInputChange function
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
   };
+
+
+
+  const handleInputChange = useCallback(
+    debounce((field, value) => {
+      setTaskDetails((prev) => ({ ...prev, [field]: value }));
+    }, 200),
+    [] // 00Empty dependency array ensures the same debounced function is used
+  );
 
   const validateTaskDetails = () => {
     if (
@@ -382,28 +403,63 @@ const Schedule = () => {
 
   
   const TaskBox = React.memo(({ title, bgColor, tasks = [], isCompleted }) => {
+    // const formatDate = (taskDate, taskTime) => {
+    //   try {
+    //     if (!taskDate || !taskTime) return "Invalid Date";
+    //     const [day, month, year] = taskDate.split("/").map(Number);
+    //     const timeParts = taskTime.match(/(\d+):(\d+) ([APap][Mm])/);
+    //     if (!timeParts) return "Invalid Time";
+    //     let [hours, minutes] = timeParts.slice(1, 3).map(Number);
+    //     const period = timeParts[3].toUpperCase();
+    //     if (period === "PM" && hours !== 12) hours += 12;
+    //     if (period === "AM" && hours === 12) hours = 0;
+    //     const taskDateTime = new Date(year, month - 1, day, hours, minutes);
+    //     if (isNaN(taskDateTime)) return "Invalid Date";
+    //     const formattedTime = format(taskDateTime, "h:mm a");
+    //     if (isToday(taskDateTime)) return `Today, ${formattedTime}`;
+    //     if (isTomorrow(taskDateTime)) return `Tomorrow, ${formattedTime}`;
+    //     console.log(`${format(taskDateTime, "MMM d")}, ${formattedTime}`)
+    //     return `${format(taskDateTime, "MMM d")}, ${formattedTime}`;
+    //   } catch (error) {
+    //     console.error("Date formatting error:", error);
+    //     return "Invalid Date";
+    //   }
+    // };
+
+
     const formatDate = (taskDate, taskTime) => {
       try {
         if (!taskDate || !taskTime) return "Invalid Date";
-        const [day, month, year] = taskDate.split("/").map(Number);
+    
+        // Convert taskDate into a Date object
+        const parsedDate = parse(taskDate, "dd/MM/yyyy", new Date());
+        if (isNaN(parsedDate)) return "Invalid Date";
+    
+        // Extract time components
         const timeParts = taskTime.match(/(\d+):(\d+) ([APap][Mm])/);
         if (!timeParts) return "Invalid Time";
+    
         let [hours, minutes] = timeParts.slice(1, 3).map(Number);
         const period = timeParts[3].toUpperCase();
+        
         if (period === "PM" && hours !== 12) hours += 12;
         if (period === "AM" && hours === 12) hours = 0;
-        const taskDateTime = new Date(year, month - 1, day, hours, minutes);
-        if (isNaN(taskDateTime)) return "Invalid Date";
-        const formattedTime = format(taskDateTime, "h:mm a");
-        if (isToday(taskDateTime)) return `Today, ${formattedTime}`;
-        if (isTomorrow(taskDateTime)) return `Tomorrow, ${formattedTime}`;
-        return `${format(taskDateTime, "MMM d")}, ${formattedTime}`;
+    
+        // Set the correct time
+        parsedDate.setHours(hours, minutes, 0, 0);
+    
+        if (isNaN(parsedDate)) return "Invalid Date";
+    
+        const formattedTime = format(parsedDate, "h:mm a");
+        if (isToday(parsedDate)) return `Today, ${formattedTime}`;
+        if (isTomorrow(parsedDate)) return `Tomorrow, ${formattedTime}`;
+        
+        return `${format(parsedDate, "MMM d")}, ${formattedTime}`;
       } catch (error) {
         console.error("Date formatting error:", error);
         return "Invalid Date";
       }
     };
-
     return (
       <View className="mb-4">
         <Text className="text-lg font-semibold text-black mb-2">{title}</Text>
@@ -439,6 +495,11 @@ const Schedule = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white mb-20">
+      {isLoading ? (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    ):(
       <ScrollView
         className="flex-1"
         contentContainerStyle={{
@@ -478,6 +539,8 @@ const Schedule = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+    )}
+      
 
       {/* Date Picker */}
       <DateTimePickerModal
@@ -516,11 +579,9 @@ const Schedule = () => {
               </Text>
 
               {/* Title Input */}
-              <Text className="text-white font-medium mb-1">Title</Text>
               <TextInput
                 className="bg-white rounded-lg px-4 py-4 mb-4 text-black"
                 placeholder="Enter task title"
-                value={taskDetails.title}
                 onChangeText={(text) => handleInputChange("title", text)}
               />
 
@@ -529,10 +590,8 @@ const Schedule = () => {
               <TextInput
                 className="bg-white rounded-lg px-4 py-4 mb-4 text-black"
                 placeholder="Enter task description"
-                value={taskDetails.description}
-                onChangeText={(description) =>
-                  handleInputChange("description", description)
-                }
+                // value={taskDetails.description}
+                onChangeText={(text) => handleInputChange("description", text)}
               />
 
               {/* Category Selection */}

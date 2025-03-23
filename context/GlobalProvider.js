@@ -1,13 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 import authService from  "../Appwrite/auth";
+import { Alert } from "react-native";
 
 const GlobalContext = createContext();
 export const useGlobalContext = () => useContext(GlobalContext);
 
 const GlobalProvider = ({ children }) => {
   const [isLogged, setIsLogged] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,11 +20,17 @@ const GlobalProvider = ({ children }) => {
           setUser(res);
         } else {
           setIsLogged(false);
-          setUser(null);
+          setUser([]);
         }
       })
       .catch((error) => {
-        console.log(error);
+        if (
+          !error.message.includes("missing scope (account)") &&
+          error.code !== 401 &&
+          error.code !== 403
+        ) {
+          Alert.alert("Error", error.message);
+        }
       })
       .finally(() => {
         setLoading(false);

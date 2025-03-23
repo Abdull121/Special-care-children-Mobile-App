@@ -12,12 +12,13 @@ export default function Index() {
 
   const { loading, isLogged } = useGlobalContext();
 
+
   if (!loading && isLogged) return <Redirect href="/home" />;
 
   return (
     <>
       {loading ? (
-        <ActivityIndicator size="small" color="#fff" />
+        <ActivityIndicator testID="loading-indicator" size="small" color="#fff" />
       ) : (
         <ImageBackground
           source={background}
@@ -41,6 +42,7 @@ export default function Index() {
                   emotional needs.
                 </Text>
                 <CustomButton
+                 testID="get-started-button"
                   handlePress={() => router.push("/login")}
                   title="Get Started"
                   textStyles="text-center text-black-Default text-[14px] font-psemibold"
