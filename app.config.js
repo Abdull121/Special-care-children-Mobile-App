@@ -26,6 +26,7 @@ export default {
         backgroundColor: "#ffffff",
       },
       package: "com.abdullahdev.specialcare", // Moved package key to correct level
+      
     },
     web: {
       bundler: "metro",
