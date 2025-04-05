@@ -261,7 +261,22 @@ export class Service{
                 }
             }
 
-
+            // resources Section service for Games
+            async getGames() {
+                try {
+                    const response = await this.databases.listDocuments(
+                        this.appwriteConfig.appwriteDatabaseId,
+                        "67df147d002ae55a92fd", // Collection ID for games
+                       
+                        
+                    );
+                    return response.documents; // Returns an array of todo documents
+                } catch (error) {
+                    console.error("Error fetching games:", error);
+                    return [];
+                }
+            }
+            
    
     
     
