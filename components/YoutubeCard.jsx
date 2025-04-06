@@ -14,6 +14,7 @@ const YouTubeCard = ({ video }) => {
 
   return (
     <TouchableOpacity
+    activeOpacity={0.9}
       onPress={() => openYouTube(video.id.videoId)}
       className="border border-blue-500 rounded-xl p-3 mx-2 bg-white shadow-lg"
       style={{ width: cardWidth, height: cardWidth * 0.8 }}

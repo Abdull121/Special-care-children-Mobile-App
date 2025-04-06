@@ -276,6 +276,49 @@ export class Service{
                     return [];
                 }
             }
+             // Community section services for posts
+
+            async getPosts() {
+
+                const currentAccount = await this. account.get();
+                console.log("current Account",currentAccount)
+                try {
+                    const getChildDetails = await this.databases.listDocuments(
+                        this.appwriteConfig.appwriteDatabaseId,
+                        "67b49f530015792eaaff", // Collection ID for posts
+                        [Query.equal("accountId", currentAccount.$id)] // Fetch only current user’s posts
+                       
+                        
+                    );
+                    console.log("getChildDetails", getChildDetails.documents[0].primaryCondition)
+                    const childCondition = getChildDetails.documents[0].primaryCondition
+
+                    if(childCondition){
+
+                        try {
+                            const getPost = await this.databases.listDocuments(
+                                this.appwriteConfig.appwriteDatabaseId,
+                                "67f00665002c47d85ce4", // Collection ID for posts
+                                [Query.equal("category", childCondition)] // Fetch only current user’s posts
+                               
+                                
+                            );
+                            console.log("getPosts", getPost)
+                            return getPost.documents; 
+                        }
+                        catch (error) {
+                            console.error("Error fetching posts:", error);
+                            return [];
+                        }
+
+                    }
+
+                   
+                } catch (error) {
+                    console.error("Error fetching childDetails:", error);
+                    return [];
+                }
+            }
             
    
     

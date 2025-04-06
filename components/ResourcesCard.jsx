@@ -6,7 +6,7 @@ import * as Linking from 'expo-linking';
 const ResourcesSection = ({resourcesSection, data}) => {
   console.log(data, "data in resources card")
   return (
-    <View className=" mb-8 mr-2">
+    <View className=" mb-8">
     {resourcesSection && (<View className="flex-row justify-between mb-3">
         <Text className="text-xl font-bold">Resources</Text>
         <TouchableOpacity>
@@ -15,7 +15,7 @@ const ResourcesSection = ({resourcesSection, data}) => {
       </View>)}
       
       {data? (
-        <View className="border border-blue-400 rounded-lg p-4 bg-gray-100">
+        <View className="border border-blue-400 rounded-lg p-4 bg-gray-100 w-[360px] ">
      
     <View className="flex-row items-center">
       <Image
@@ -30,7 +30,9 @@ const ResourcesSection = ({resourcesSection, data}) => {
         <Text className="text-gray-500 text-sm mt-2">{data?.rating} </Text>
         <Text className="text-black font-bold mt-1">{data?.downloads}</Text>
 
-        <Text className="text-gray-500 text-sm mt-2 w-96 " numberOfLines={3}>
+        <Text ellipsizeMode="tail"
+              numberOfLines={3} 
+            className="text-gray-500 text-sm mt-2 "  >
          {data?.description} 
         </Text>
 

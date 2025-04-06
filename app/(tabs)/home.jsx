@@ -107,7 +107,7 @@ const Home = () => {
         )}
 
          {/* Community & Resources Sections */}
-      <CommunitySection />
+      {/* <CommunitySection /> */}
       <ResourcesSection />
 
       {/* Child Mode Usage Chart */}
