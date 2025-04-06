@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
-import { Redirect, Tabs } from "expo-router";
-import { Image, Text, View } from "react-native";
+import {  Tabs } from "expo-router";
+import { Image, Text, View, TouchableOpacity } from "react-native";
 
 import  icons  from "../../constants/icons";
 // import { Loader } from "../../components";
@@ -65,6 +65,7 @@ const TabLayout = () => {
           options={{
             title: "Home",
             headerShown: false,
+            tabBarButton: (props) => <TouchableOpacity {...props} activeOpacity={0.9} />,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.Home}
@@ -80,6 +81,7 @@ const TabLayout = () => {
           options={{
             title: "Community",
             headerShown: false,
+            tabBarButton: (props) => <TouchableOpacity {...props} activeOpacity={0.9} />,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.profile}
@@ -96,6 +98,7 @@ const TabLayout = () => {
           options={{
             title: "Resources",
             headerShown: false,
+            tabBarButton: (props) => <TouchableOpacity {...props} activeOpacity={0.9} />,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.resources}
@@ -111,6 +114,7 @@ const TabLayout = () => {
           options={{
             title: "Schedule",
             headerShown: false,
+            tabBarButton: (props) => <TouchableOpacity {...props} activeOpacity={0.9} />,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.task}

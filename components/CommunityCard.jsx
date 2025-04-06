@@ -1,44 +1,54 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
-// import { FontAwesome } from "@expo/vector-icons";
-import images from "../constants/images";
+import * as Linking from 'expo-linking';
 
-const CommunitySection = () => {
+const CommunitySection = ({CommunitySection, data}) => {
+  // console.log(data, "data in community card")
+   const { title, description, author, date, featuredImage, postLink} = data;
   return (
-    <View className="mt-6 px-0">
-      <View className="flex-row justify-between mb-3 ">
+    <View >
+      {CommunitySection && (
+        <View className="flex-row justify-between mb-3 ">
         <Text className="text-xl font-bold">Community</Text>
         <TouchableOpacity>
           <Text className="text-blue-600 font-bold">View all</Text>
         </TouchableOpacity>
       </View>
+      )}
 
-      <View className="border border-primary rounded-lg p-4 bg-gray-100 ">
-        <Text className="text-lg font-bold">Tehreem</Text>
-        <Text className="text-gray-500 text-sm mb-2">Date: Feb 10, 2025, 3 min read</Text>
+
+      {data && (
+        <TouchableOpacity
+        activeOpacity={0.9}
+          onPress={() => {
+            // Open the link in the default browser
+            Linking.openURL(postLink)
+              .catch((err) => console.error("Failed to open URL:", err));
+          }}
+        >
+        <View className="border border-primary rounded-lg p-4 bg-gray-100 ">
+        <Text className="text-lg font-bold" numberOfLines={1}>{author}</Text>
+        <Text className="text-gray-500 text-sm mb-2">{date}</Text>
 
         <Image
-          source={images.childResources} // Replace with actual image
+          source={{uri:featuredImage}} // Replace with actual image
           className="w-full h-40 rounded-lg"
         />
 
-        <TouchableOpacity>
-          <Text className="text-blue-600 font-bold mt-2">Special children need special care</Text>
-        </TouchableOpacity>
+        
+          <Text className="text-blue-600 font-bold mt-2" numberOfLines={1}>{title}</Text>
+       
 
-        <Text className="text-gray-500 text-sm mt-1">
-          Several differently abled children walk every morning into specialized schools with a hope of
-          getting basic education and skills...
+        <Text className="text-gray-500 text-sm mt-1 " numberOfLines={3}>
+          {description}
         </Text>
 
-        <TouchableOpacity>
+        
           <Text className="text-blue-600 font-bold mt-2">read more</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity className="absolute bottom-2 right-2">
-          {/* <FontAwesome name="bookmark-o" size={20} color="gray" /> */}
-        </TouchableOpacity>
+       
       </View>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
