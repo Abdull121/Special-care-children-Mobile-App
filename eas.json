@@ -1,47 +1,21 @@
-
-
-// {
-//   "build": {
-//     "development": {
-//       "developmentClient": true,
-//       "distribution": "internal"
-//     },
-//     "preview": {
-//       "distribution": "internal"
-//     },
-//     "production": {}
-//   }
-// }
-
-
-
-
-
+// This file is used by EAS Build to configure the build process for your app.
 {
   "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
     "preview": {
-      "distribution": "internal",
-      "android": {
-        "buildType": "apk"
-      },
-      "env": {
-      
-
-       " APPWRITE_URL":"https://cloud.appwrite.io/v1",
-
-          "APPWRITE_PROJECT_ID": "67818fcb00244a465e51",
-          "APPWRITE_DATABASE_ID":"6788a6930000a304bb46",
-          "PLATFORM":"android",
-          "OTP_COLLECTION_ID": "67acaf5100288b72e219",
-          "USER_COLLECTION_ID": "67b2266400266fe48a37",
-          "CHILD_COLLECTION_ID": "67b49f530015792eaaff",
-          "SCHEDULE_COLLECTION_ID": "67bb6b950013d42733ca",
-          "YOUTUBE_API_KEY":"AIzaSyBBeBYqvW-6nXKKmCULCWryT9lbOB3rtOA",
-          "PLACE_API_KEY":"AlzaSyj0kKkKjuoLhLaeWgasee1OxuQjwsTxeXI",
-          "CHILD_MOOD_COLLECTION_ID": "67c3616c0031fd3e0340",
-        
-        
-      }
-    }
+      "distribution": "internal"
+    },
+    "production": {}
   }
 }
+
+
+
+
+
+
+
+

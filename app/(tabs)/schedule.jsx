@@ -55,8 +55,7 @@ const Schedule = () => {
     const pendingTasks = tasks.length;
     const completedCount = completedTasks.length;
 
-    const completionPercentage =
-      totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
+    const completionPercentage = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
 
     if (tasks.length || responses.length > 0) {
       if (completionPercentage >= 90)
@@ -96,8 +95,8 @@ const Schedule = () => {
           totalTasks: totalTasks,
         };
       return {
-        emoji: "Angry",
-        childMood: "😡",
+        emoji: "😡",
+        childMood:"Angry", 
         percentage: completionPercentage,
         pendingTasks: pendingTasks,
         completedCount: completedCount,
@@ -501,7 +500,6 @@ const Schedule = () => {
       </View>
     ):(
       <ScrollView
-        className="flex-1"
         contentContainerStyle={{
           flexGrow: 1,
           paddingHorizontal: 16,
