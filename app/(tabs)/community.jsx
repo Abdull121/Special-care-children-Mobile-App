@@ -1,7 +1,8 @@
 import { View, Text, SafeAreaView, FlatList, ActivityIndicator } from 'react-native'
-import React,{useEffect} from 'react'
+import React,{useCallback} from 'react'
 import CommunityCard from '../../components/CommunityCard'
 import config from '../../Appwrite/config'
+import { useFocusEffect } from '@react-navigation/native';
 
 
 const community = () => {
@@ -9,9 +10,12 @@ const community = () => {
   const [posts, setPosts] = React.useState([])
   const [loading, setLoading] = React.useState(true)
 
-  useEffect(()=>{
-    fetchPostData()
-  },[])
+  useFocusEffect(
+    useCallback(() => {
+      // fetch latest profile or posts from Appwrite
+      fetchPostData();
+    }, [])
+  );
 
   const shufflePosts = (array) => {
     return array.map((value) => ({ value, sort: Math.random() })).sort((a, b) => a.sort - b.sort).map(({ value }) => value)
@@ -20,6 +24,7 @@ const community = () => {
 
 
   const fetchPostData = async () => {
+     setLoading(true);
     const getPost = await config.getPosts()
     //console.log(getPost, "getPost")
 

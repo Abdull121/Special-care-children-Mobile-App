@@ -1,6 +1,8 @@
-
 import { Client, ID, Databases, Storage,Query,Avatars, Account } from "react-native-appwrite";
 import Constants from 'expo-constants';
+
+import * as FileSystem from 'expo-file-system'; // for converting image to Blob
+
 
 export class Service{
     client = new Client();
@@ -14,7 +16,7 @@ export class Service{
         userCollectionId: Constants.expoConfig.extra.USER_COLLECTION_ID,
         childCollectionId: Constants.expoConfig.extra.CHILD_COLLECTION_ID,
         scheduleCollectionId: Constants.expoConfig.extra.SCHEDULE_COLLECTION_ID,
-        CHILD_MODE_COLLECTION_ID: Constants.expoConfig.extra.CHILD_MODE_COLLECTION_ID,
+        childModeCollectionId: Constants.expoConfig.extra.CHILD_MODE_COLLECTION_ID,
         platform: Constants.expoConfig.extra.PLATFORM,
     };
     
@@ -161,7 +163,7 @@ export class Service{
             }
 
 
-            //get child mood for update because we need to update the child mood that required a document id
+            //get "Child mood" for update because we need to update the child mood that required a document id
         async fetchChildMood() {
 
             try {
@@ -169,7 +171,7 @@ export class Service{
                 console.log(userId)
                 const response = await this.databases.listDocuments(
                     this.appwriteConfig.appwriteDatabaseId,
-                    "67c3616c0031fd3e0340", // Collection ID
+                    this.appwriteConfig.childModeCollectionId, // Collection ID
                     [Query.equal("id",userId)] // Fetch only current user’s todos
                 );  
                     console.log("fetchChild Moode DATA",response.documents)
@@ -196,7 +198,7 @@ export class Service{
                     try {
                         const response = await this.databases.createDocument(
                             this.appwriteConfig.appwriteDatabaseId,
-                            "67c3616c0031fd3e0340",
+                            this.appwriteConfig.childModeCollectionId,
                             ID.unique(),//attach user id to the child mood
 
 
@@ -229,10 +231,6 @@ export class Service{
 
 
 
-        
-        
-
-
             //update Child Mood
          async updateChildMood (emoji, childMood, completedCount, totalTasks, documentId )  {
             console.log(emoji, childMood, completedCount, totalTasks, documentId)
@@ -242,7 +240,7 @@ export class Service{
                 try {
                     const response = await this.databases.updateDocument(
                         this.appwriteConfig.appwriteDatabaseId,
-                        "67c3616c0031fd3e0340", // collection id
+                        this.appwriteConfig.childModeCollectionId, // collection id
                         documentId,             // document id
                         {   emoji: emoji,
                             childMood: childMood ,
@@ -283,9 +281,10 @@ export class Service{
                 const currentAccount = await this. account.get();
                 console.log("current Account",currentAccount)
                 try {
+                    
                     const getChildDetails = await this.databases.listDocuments(
                         this.appwriteConfig.appwriteDatabaseId,
-                        "67b49f530015792eaaff", // Collection ID for posts
+                        "67b49f530015792eaaff", // Collection ID for child details
                         [Query.equal("accountId", currentAccount.$id)] // Fetch only current user’s posts
                        
                         
@@ -298,7 +297,7 @@ export class Service{
                         try {
                             const getPost = await this.databases.listDocuments(
                                 this.appwriteConfig.appwriteDatabaseId,
-                                "67f00665002c47d85ce4", // Collection ID for posts
+                                "67f00665002c47d85ce4", // table Collection ID for posts
                                 [Query.equal("category", childCondition)] // Fetch only current user’s posts
                                
                                 
@@ -320,13 +319,105 @@ export class Service{
                 }
             }
             
+
+
+            //update Child Profile in the home screen
+            async updateChildProfile ( childName, age, primaryCondition, avatar) {
+                //console.log( childName, age, primaryCondition)
+                
+                const currentAccount = await this.account.get();
+                console.log("current Account",currentAccount)
+                const childId = currentAccount.$id
+                console.log("childId",childId)
+                try {
+
+                    const getChildDetails = await this.databases.listDocuments(
+                        this.appwriteConfig.appwriteDatabaseId,
+                        "67b49f530015792eaaff", // Collection ID for child details
+                        [Query.equal("accountId", currentAccount.$id)] // Fetch only current user’s posts
+                       
+                        
+                    );
+
+                    
+
+
+                    const response = await this.databases.updateDocument(
+                        this.appwriteConfig.appwriteDatabaseId,
+                        this.appwriteConfig.childCollectionId,
+                        getChildDetails.documents[0].$id, // Document ID for the child profile
+                        { childName: childName, age: age, primaryCondition: primaryCondition, 	avatar: avatar }, // Updated data
+                    );
+                    return response;
+                } catch (error) {
+                    console.error('Appwrite service :: updateChildProfile :: error: ', error);
+                    throw error;
+                }
+            }
    
-    
+
+            // profile image upload service when the user upload image from the device
+
+            async uploadToCloudinary (imageUri)  {
+                try {
+                  // Convert image to base64
+                  const base64Data = await FileSystem.readAsStringAsync(imageUri, {
+                    encoding: FileSystem.EncodingType.Base64,
+                  });
+              
+                  // Cloudinary configuration
+                  const cloudName = 'dunihnlan'; // ← Replace this
+                  const uploadPreset = 'specialcare_upload'; // ← Replace this
+              
+                  const response = await fetch(
+                    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+                    {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        file: `data:image/jpeg;base64,${base64Data}`,
+                        upload_preset: uploadPreset,
+                      }),
+                    }
+                  );
+              
+                  const data = await response.json();
+                  return data.secure_url; // Returns URL like "https://res.cloudinary.com/..."
+                  
+                } catch (error) {
+                  console.error('Cloudinary upload error:', error);
+                  throw error;
+                }
+              };
     
 
    
+              //get image Avatar URL 
+             async getAvatarUrl(fileId) {
+                console.log(fileId, "fileId")
+                return `https://your-appwrite-endpoint/storage/buckets/67b4a52b00043d9617a7/files/${fileId}/view?project=your-project-id`;
+              }
+
      
-            
+            // get child mode data for the home screen
+
+            getChildModeData = async()=>{
+                try{
+                    const userId = await this.getAccount(); // Get current user
+                    console.log(userId)
+                    const response = await this.databases.listDocuments(
+                        this.appwriteConfig.appwriteDatabaseId,
+                        this.appwriteConfig.childModeCollectionId, // Collection ID
+                        [Query.equal("id",userId)] // Fetch only current user’s todos
+                    );  
+                        console.log("fetchChild Mode DATA",response.documents[0])
+                    return response.documents[0]; // Returns an array of todo documents
+                }catch(error){
+                    console.log("getChildModeData",error)
+                }   
+            }
 
            
             
@@ -335,29 +426,7 @@ export class Service{
 
 
 
-    // file upload service
-
-    // async uploadFile(file){
-    //     try {
-    //         return await this.bucket.createFile(
-    //             conf.appwriteBucketId,
-    //             ID.unique(),
-    //             file
-    //         )
-    //     } catch (error) {
-    //         console.log("Appwrite serive :: uploadFile :: error", error);
-    //         return false
-    //     }
-    // }
-
     
-
-    // getFilePreview(fileId){
-    //     return this.bucket.getFilePreview(
-    //         conf.appwriteBucketId,
-    //         fileId
-    //     )
-    // }
 }
 
 

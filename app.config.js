@@ -33,42 +33,51 @@ export default {
       output: "static",
       favicon: "./assets/images/favicon.png",
     },
-    plugins: [
-      "expo-router",
-       //"expo-secure-store",
-       [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "Allow SpecialCare to use your location."
-        }
-      ],
-       [
-        "expo-notifications",
-        {
-          "icon": "./assets/images/children.png",
-          "color": "#ffffff"
-        }
-      ],
-    
-      [
-        "expo-splash-screen",
-        
-        {
-          image: "./assets/images/splash-icon.png",
-          imageWidth: 200,
-          resizeMode: "contain",
-          backgroundColor: "#ffffff",
-        },
-      ],
+  plugins: [
+  "expo-router",
 
-      // [
-      //   "expo-secure-store",
-      //   {
-      //     "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
-      //   }
-      // ],
-      "expo-font",
-    ],
+  [
+    "expo-location",
+    {
+      locationAlwaysAndWhenInUsePermission: "Allow SpecialCare to use your location."
+    }
+  ],
+
+  [
+    "expo-image-picker",
+    {
+      photosPermission: "The app accesses your photos to let you share them with your friends."
+    }
+  ],
+
+  [
+    "expo-notifications",
+    {
+      icon: "./assets/images/children.png",
+      color: "#ffffff"
+    }
+  ],
+
+  [
+    "expo-splash-screen",
+    {
+      image: "./assets/images/splash-icon.png",
+      imageWidth: 200,
+      resizeMode: "contain",
+      backgroundColor: "#ffffff"
+    }
+  ],
+
+  // [
+  //   "expo-secure-store",
+  //   {
+  //     faceIDPermission: "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+  //   }
+  // ],
+  
+  "expo-font"
+],
+
     experiments: {
       typedRoutes: true,
     },
