@@ -210,7 +210,7 @@ const Home = () => {
             resizeMode="contain"
             className="w-14 h-14"
           /> */}
-          <Text className="text-[36px] mt-2">{childData.emoji}</Text>
+          <Text className="text-[36px] mt-2">{childData?.emoji || '😍'}</Text>
           <Text className="text-white text-sm mt-8">Daily Reflection</Text>
           <Text className="text-white text-lg font-bold mt-1">
             Hello, {user?.childName} is feeling {childData?.childMood} now!
