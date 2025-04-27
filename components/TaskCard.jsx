@@ -88,7 +88,7 @@ const TaskCard = ({
             </Text>
           )}
 
-          {available && category && (
+          { category && (
             <View className="bg-primary px-2 py-1 rounded-lg ml-2 max-w-[120px]">
               <Text 
                 className="text-white text-xs" 

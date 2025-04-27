@@ -1,10 +1,10 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity,} from "react-native";
-import images from "../constants/images";
+// import images from "../constants/images";
 import * as Linking from 'expo-linking';
 
 const ResourcesSection = ({resourcesSection, data}) => {
-  console.log(data, "data in resources card")
+  // console.log(data, "data in resources card")
   return (
     <View className=" mb-8">
     {resourcesSection && (<View className="flex-row justify-between mb-3">

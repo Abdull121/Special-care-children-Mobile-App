@@ -406,7 +406,7 @@ export class Service{
             getChildModeData = async()=>{
                 try{
                     const userId = await this.getAccount(); // Get current user
-                    console.log(userId)
+                    // console.log(userId)
                     const response = await this.databases.listDocuments(
                         this.appwriteConfig.appwriteDatabaseId,
                         this.appwriteConfig.childModeCollectionId, // Collection ID
@@ -422,7 +422,39 @@ export class Service{
            
             
 
-
+            //get Today task for the home screen
+            getTodayTask = async() => {
+                try {
+                    // Get current user
+                    const userId = await this.getAccount();
+                    
+                    // Format today's date as DD/MM/YYYY to match your Appwrite format
+                    const today = new Date();
+                    const day = String(today.getDate()).padStart(2, '0');
+                    const month = String(today.getMonth() + 1).padStart(2, '0');
+                    const year = today.getFullYear();
+                    const todayFormatted = `${day}/${month}/${year}`;
+                    
+                    // console.log("Filtering tasks for date:", todayFormatted);
+                    
+                    const response = await this.databases.listDocuments(
+                        this.appwriteConfig.appwriteDatabaseId,
+                        this.appwriteConfig.scheduleCollectionId,
+                        [
+                            Query.equal("userId", userId),
+                            Query.equal("status", "pending"),
+                            Query.equal("date", todayFormatted) // Filter by today's date in DD/MM/YYYY format
+                        ]
+                    );
+                    
+            
+                    return response.documents; 
+                } catch(error) {
+                    console.log("getTodayTask error:", error);
+                    return [];
+                }
+            }
+                        
 
 
 
