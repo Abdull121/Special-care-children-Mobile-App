@@ -4,25 +4,35 @@ import { FontAwesome } from "@expo/vector-icons";
 import icons from "../../constants/icons";
 import TaskCard from "../../components/TaskCard";
 import CommunitySection from "../../components/CommunityCard";
-import ResourcesSection from "../../components/ResourcesCard";
+import ResourceCard from "../../components/ResourcesCard";
 import FormFields from "../../components/FormFields";
 import CustomButton from "../../components/CustomButton";
 import { Dropdown } from "react-native-element-dropdown";
 import config from "../../Appwrite/config";
 import authService from "../../Appwrite/auth";
+import useYouTubeVideoFetcher from "../../components/YoutubeVideos";
+import YouTubeVideoPreview from "../../components/VideoPreview";
+import {router} from "expo-router";
+
 
 //image picker 
 import * as ImagePicker from 'expo-image-picker';
 
 
 import { useGlobalContext } from "../../context/GlobalProvider";
-import { router } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 
 
 
 
 const Home = () => {
+  const SEARCH_QUERY = "Parenting special needs children Urdu ";
+  const { 
+    videos = [], 
+    isLoading: videosLoading = false,
+    error: videosError 
+  } = useYouTubeVideoFetcher(SEARCH_QUERY) || {};
+  
   const { user,setUser } = useGlobalContext();
   //console.log(user)
   const [tasks, setTasks] = useState([]);
@@ -42,6 +52,7 @@ const Home = () => {
   
     //console.log(selectedValue)
   
+    //menu dropdown in profile modal
     const [isFocus, setIsFocus] = useState(false);
     const data = [
       { label: "Autism", value: "autism" },
@@ -60,14 +71,17 @@ const Home = () => {
 
 
   const fetchTasks = async () => {
+    
+    
+
     setLoading(true);
     try {
-      const fetchedTasks = [
-        { id: 1, title: "Interview with doctor for therapy.", description: "An insightful conversation with a doctor.", time: "Today, 8:00 AM " },
-        { id: 2, title: "Session on ADHD Awareness.", description: "Understanding ADHD therapy in depth.", time: "Today, 1:00 AM " },
-        
-      ];
-      setTasks(fetchedTasks);
+      
+      
+      const todayChildTask = await config.getTodayTask();
+      console.log(todayChildTask);
+
+      setTasks(todayChildTask);
 
       const fetchChildMode =  await config.getChildModeData()
       
@@ -146,6 +160,11 @@ const Home = () => {
         }
       };
 
+      // Function to navigate to resources screen
+  const handleViewAllVideos = useCallback(() => {
+    router.push('/resources');
+  }, []);
+
  
 
   return (
@@ -205,11 +224,7 @@ const Home = () => {
       <View className="flex-row justify-between">
         {/* Reflection Card */}
         <View className="bg-primary p-5 rounded-[16px] flex-1 h-60 mr-2">
-          {/* <Image
-            source={childData?.emoji || icons.smile}
-            resizeMode="contain"
-            className="w-14 h-14"
-          /> */}
+          
           <Text className="text-[36px] mt-2">{childData?.emoji || '😍'}</Text>
           <Text className="text-white text-sm mt-8">Daily Reflection</Text>
           <Text className="text-white text-lg font-bold mt-1">
@@ -227,22 +242,54 @@ const Home = () => {
       </View>
 
       {/* Video Resource */}
-      <View className="bg-gray-300 p-4 rounded-xl flex-row items-center mt-4">
-        <FontAwesome name="play-circle" size={24} color="black" />
-        <View className="ml-3">
-          <Text className="text-gray-600 text-sm">5 min watch</Text>
-          <Text className="text-lg font-bold">Understanding ADHD Therapy</Text>
-        </View>
-        <TouchableOpacity className="ml-auto">
-          <Text className="text-blue-600 font-bold">View</Text>
-        </TouchableOpacity>
-      </View>
+     
+          {videosLoading ? (
+        <View style={{ 
+          backgroundColor: '#f0f0f0', 
+          padding: 16, 
+          borderRadius: 12, 
+          flexDirection: 'row', 
+          alignItems: 'center', 
+          marginTop: 16 
+        }}>
+            <View style={{ height: 24, width: 24, borderRadius: 12, backgroundColor: '#ddd' }} />
+              <View style={{ marginLeft: 12, flex: 1 }}>
+                <View style={{ height: 14, width: 80, backgroundColor: '#ddd', borderRadius: 4, marginBottom: 8 }} />
+                <View style={{ height: 18, width: '100%', backgroundColor: '#ddd', borderRadius: 4 }} />
+              </View>
+            </View>
+          ) : videos && videos.length > 0 ? (
+            <YouTubeVideoPreview 
+              video={videos[0]} 
+              onViewAll={handleViewAllVideos}
+            />
+          ) : (
+            <View style={{ 
+              backgroundColor: '#f0f0f0', 
+              padding: 16, 
+              borderRadius: 12, 
+              flexDirection: 'row', 
+              alignItems: 'center', 
+              marginTop: 16 
+            }}>
+              <FontAwesome name="play-circle" size={24} color="black" />
+              <View style={{ marginLeft: 12, flex: 1 }}>
+                <Text style={{ color: '#666', fontSize: 14 }}>5 min watch</Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Understanding ADHD Therapy</Text>
+              </View>
+              <TouchableOpacity onPress={handleViewAllVideos}>
+                <Text style={{ color: '#0066cc', fontWeight: 'bold' }}>View All</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+      
 
       {/* Tasks Section */}
       <View className="mt-7  pb-10">
-        <View className="flex-row justify-between mb-3">
+        <View className="flex-row justify-between mb-3 pr-2">
           <Text className="text-xl font-bold">Today Tasks</Text>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/schedule')} >
             <Text className="text-blue-600 font-bold">View all</Text>
           </TouchableOpacity>
         </View>
@@ -250,15 +297,29 @@ const Home = () => {
         {/* Task Cards */}
         {loading ? (
           <Text className="text-gray-500">Loading tasks...</Text>
-        ) : (
+        ) : ( tasks.length > 0 ? (
           tasks.map((task) => (
-            <TaskCard key={task.id} title={task.title} description={task.description} time={task.time} />
-          ))
-        )}
+            
+            <TaskCard 
+             key={task.$id}
+             title={task.title} 
+             description={task.description}
+             time={task.time} 
+             category={task.category}
+             date="Today"
+            />
+          )) 
+
+        ):(
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: 200 , borderColor: 'gray', borderWidth: 1, borderRadius: 8 }}>
+            <Text className="text-gray-500 text-center" >No tasks available for today.  </Text>
+          </View>
+        ))
+        }
 
          {/* Community & Resources Sections */}
       {/* <CommunitySection /> */}
-      <ResourcesSection />
+      <ResourceCard />
 
       {/* Child Mode Usage Chart */}
       {/* <ChildModeChart /> */}

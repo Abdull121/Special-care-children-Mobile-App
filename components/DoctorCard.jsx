@@ -6,6 +6,7 @@ const { width } = Dimensions.get('window');
 const cardWidth = width * 0.9;
 
 const DoctorCard = ({ clinic }) => {
+  // console.log(clinic);
    
   const openDirections = () => {
     const url = `geo:0,0?q=${clinic.lat},${clinic.lon}(${clinic.address})`;
