@@ -2,20 +2,34 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity,} from "react-native";
 // import images from "../constants/images";
 import * as Linking from 'expo-linking';
+import{router} from "expo-router";
 
 const ResourcesSection = ({resourcesSection, data}) => {
-  // console.log(data, "data in resources card")
+  //sconsole.log(resourcesSection, "resourcesSection")
   return (
     <View className=" mb-8">
-    {resourcesSection && (<View className="flex-row justify-between mb-3">
+    {resourcesSection && (<View className="flex-row justify-between mt-5 mb-3 pr-3">
         <Text className="text-xl font-bold">Resources</Text>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => router.push("/resources")}
+        >
           <Text className="text-blue-600 font-bold">View all</Text>
+          
         </TouchableOpacity>
       </View>)}
       
       {data? (
-        <View className="border border-blue-400 rounded-lg p-4 bg-gray-100 w-[360px] ">
+        <View
+        style={{
+          borderWidth: 1,
+          borderColor: '#60A5FA', 
+          borderRadius: 8,         
+          padding: 16,             
+          backgroundColor: '#F3F4F6', 
+          width: resourcesSection ? '100%' :314,
+        }}
+      >
+
      
     <View className="flex-row items-center">
       <Image

@@ -259,7 +259,7 @@ export class Service{
                 }
             }
 
-            // resources Section service for Games
+            // Resources, Home service for Games
             async getGames() {
                 try {
                     const response = await this.databases.listDocuments(
@@ -276,7 +276,7 @@ export class Service{
             }
              // Community section services for posts
 
-            async getPosts() {
+             async getPosts() {
 
                 const currentAccount = await this. account.get();
                 console.log("current Account",currentAccount)
@@ -318,7 +318,6 @@ export class Service{
                     return [];
                 }
             }
-            
 
 
             //update Child Profile in the home screen
@@ -435,7 +434,7 @@ export class Service{
                     const year = today.getFullYear();
                     const todayFormatted = `${day}/${month}/${year}`;
                     
-                    // console.log("Filtering tasks for date:", todayFormatted);
+                     console.log("Filtering tasks for date:", todayFormatted);
                     
                     const response = await this.databases.listDocuments(
                         this.appwriteConfig.appwriteDatabaseId,
@@ -443,7 +442,8 @@ export class Service{
                         [
                             Query.equal("userId", userId),
                             Query.equal("status", "pending"),
-                            Query.equal("date", todayFormatted) // Filter by today's date in DD/MM/YYYY format
+                            Query.equal("date", todayFormatted) , // Filter by today's date in DD/MM/YYYY format
+                            Query.limit(2)
                         ]
                     );
                     

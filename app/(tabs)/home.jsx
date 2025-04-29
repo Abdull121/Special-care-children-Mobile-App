@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView, Modal, A
 import { FontAwesome } from "@expo/vector-icons";
 import icons from "../../constants/icons";
 import TaskCard from "../../components/TaskCard";
-import CommunitySection from "../../components/CommunityCard";
+import CommunityCard from "../../components/CommunityCard";
 import ResourceCard from "../../components/ResourcesCard";
 import FormFields from "../../components/FormFields";
 import CustomButton from "../../components/CustomButton";
@@ -13,6 +13,7 @@ import authService from "../../Appwrite/auth";
 import useYouTubeVideoFetcher from "../../components/YoutubeVideos";
 import YouTubeVideoPreview from "../../components/VideoPreview";
 import {router} from "expo-router";
+import useGamesFetcher from "../../components/FetchGmaes";
 
 
 //image picker 
@@ -26,12 +27,17 @@ import { useFocusEffect } from "@react-navigation/native";
 
 
 const Home = () => {
+  //get videos
   const SEARCH_QUERY = "Parenting special needs children Urdu ";
   const { 
     videos = [], 
     isLoading: videosLoading = false,
     error: videosError 
   } = useYouTubeVideoFetcher(SEARCH_QUERY) || {};
+
+  //get Gamess
+   const { games, isLoading: gamesLoading } = useGamesFetcher();
+  
   
   const { user,setUser } = useGlobalContext();
   //console.log(user)
@@ -43,6 +49,7 @@ const Home = () => {
   const [tempAvatar, setTempAvatar] = useState(null); 
 
   const [childData,setChildData] = useState(false);
+  const [communityData,setCommunityData] = useState(false);
 
   const [form, setForm] = useState({
       childName: "",
@@ -77,15 +84,17 @@ const Home = () => {
     setLoading(true);
     try {
       
-      
-      const todayChildTask = await config.getTodayTask();
-      console.log(todayChildTask);
-
-      setTasks(todayChildTask);
-
       const fetchChildMode =  await config.getChildModeData()
-      
       setChildData(fetchChildMode)
+
+      const todayChildTask = await config.getTodayTask();
+      // console.log(todayChildTask);
+      setTasks(todayChildTask);
+      const communityData = await config.getPosts();
+      console.log(communityData); // Check the fetched data
+      setCommunityData(communityData);
+
+
     } catch (error) {
       console.error("Error fetching tasks:", error);
     } finally {
@@ -169,15 +178,16 @@ const Home = () => {
 
   return (
       <SafeAreaView className="flex-1 bg-white">
-      {loading ? (<View className="flex items-center justify-center h-screen">
-                    <ActivityIndicator size="large" color="blue" />
-                </View>):
-                         (  <ScrollView style={{
+      {loading ? 
+      (<View className="flex items-center justify-center h-screen">
+        <ActivityIndicator size="large" color="blue" />
+          </View>):
+        (  <ScrollView style={{
         flex: 1,
         backgroundColor: modal ? 'rgba(0, 0, 0, 0.8)' : '#FFFFFF',
-        paddingHorizontal: 20,  // px-5
-        paddingTop: 50,         // pt-10
-        marginBottom: 64,       // mb-16
+        paddingHorizontal: 20, 
+        paddingTop: 50,         
+        marginBottom: 48,       
       }}>
 
 
@@ -284,8 +294,10 @@ const Home = () => {
           )}
       
 
-      {/* Tasks Section */}
-      <View className="mt-7  pb-10">
+     
+      <View className="my-10 pb-10 ">
+
+         {/* Tasks Section */}
         <View className="flex-row justify-between mb-3 pr-2">
           <Text className="text-xl font-bold">Today Tasks</Text>
           <TouchableOpacity
@@ -311,15 +323,24 @@ const Home = () => {
           )) 
 
         ):(
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: 200 , borderColor: 'gray', borderWidth: 1, borderRadius: 8 }}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: 160 , borderColor: '#0166FC', borderWidth: 1, borderRadius: 8 , marginBottom:20}}>
             <Text className="text-gray-500 text-center" >No tasks available for today.  </Text>
           </View>
         ))
         }
 
          {/* Community & Resources Sections */}
-      {/* <CommunitySection /> */}
-      <ResourceCard />
+         <CommunityCard
+          CommunitySection={true}
+          data={communityData[Math.floor(Math.random() * communityData.length)]}
+        />
+
+
+      <ResourceCard 
+        resourcesSection={true}
+        data={games[0]}
+      
+      />
 
       {/* Child Mode Usage Chart */}
       {/* <ChildModeChart /> */}
@@ -489,6 +510,7 @@ const Home = () => {
                           }
                           
                         }}
+                       
                         title="Log Out"
                         textStyles="text-center text-white text-[14px] font-psemibold "
                         container="mt-7 mb-3 w-full h-12 w-[99.6%] rounded-[4px] bg-[#cc0415]"

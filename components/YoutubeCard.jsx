@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity , Dimensions} from "react-native";
 import * as Linking from "expo-linking";
 
 const { width } = Dimensions.get('window');
-const cardWidth = width * 0.9;
+const cardWidth = width * 0.8;
 const YouTubeCard = ({ video }) => {
   const openYouTube = (videoId) => {
     const youtubeAppUrl = `vnd.youtube://${videoId}`;
@@ -17,7 +17,7 @@ const YouTubeCard = ({ video }) => {
     activeOpacity={0.9}
       onPress={() => openYouTube(video.id.videoId)}
       className="border border-blue-500 rounded-xl p-3 mx-2 bg-white shadow-lg"
-      style={{ width: cardWidth, height: cardWidth * 0.8 }}
+      style={{ width: cardWidth, height: cardWidth * 0.9}}
     >
       <Image
         source={{ uri: video.snippet.thumbnails.high.url }}

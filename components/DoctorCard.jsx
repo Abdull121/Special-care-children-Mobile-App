@@ -3,7 +3,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, Linking , Dimensions, Image} from "react-native";
 import icons from "../constants/icons";
 const { width } = Dimensions.get('window');
-const cardWidth = width * 0.9;
+const cardWidth = width * 0.8;
 
 const DoctorCard = ({ clinic }) => {
   // console.log(clinic);
@@ -23,7 +23,7 @@ const DoctorCard = ({ clinic }) => {
             {clinic.name}
           </Text>
           
-          <Text className="text-gray-500 text-md my-2 w-96"  numberOfLines={2}>Address: {''} {clinic.address}
+          <Text className="text-gray-500 text-md my-2 w-94"  numberOfLines={2}>Address: {''} {clinic.address}
           </Text>
           <View className="flex-row items-center  gap-3">
           <Text className="text-gray-500 text-md my-2" >Clinic: {' '}{clinic.openHours?"Open":"Close"}</Text>
