@@ -25,7 +25,7 @@ const community = () => {
 
   const fetchPostData = async () => {
      setLoading(true);
-    const getPost = await config.getPosts()
+    const getPost = await config.getPosts() // Fetch posts from Appwrite
     //console.log(getPost, "getPost")
 
     const shuffle = shufflePosts(getPost) // Shuffle the posts

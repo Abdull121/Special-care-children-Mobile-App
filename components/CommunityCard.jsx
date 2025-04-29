@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import * as Linking from 'expo-linking';
+import { router } from "expo-router";
 
 const CommunitySection = ({CommunitySection, data}) => {
   // console.log(data, "data in community card")
@@ -8,10 +9,11 @@ const CommunitySection = ({CommunitySection, data}) => {
   return (
     <View >
       {CommunitySection && (
-        <View className="flex-row justify-between mb-3 ">
+        <View className="flex-row justify-between mb-3 mt-3">
         <Text className="text-xl font-bold">Community</Text>
-        <TouchableOpacity>
-          <Text className="text-blue-600 font-bold">View all</Text>
+        <TouchableOpacity
+        onPress={() => router.push("/community")}>
+          <Text className="text-blue-600 font-bold pr-2 ">View all</Text>
         </TouchableOpacity>
       </View>
       )}
