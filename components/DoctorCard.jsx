@@ -23,7 +23,7 @@ const DoctorCard = ({ clinic }) => {
             {clinic.name}
           </Text>
           
-          <Text className="text-gray-500 text-md my-2 w-94"  numberOfLines={2}>Address: {''} {clinic.address}
+          <Text className="text-gray-500 text-md my-2 w-94"  numberOfLines={1}>Address: {''} {clinic.address}
           </Text>
           <View className="flex-row items-center  gap-3">
           <Text className="text-gray-500 text-md my-2" >Clinic: {' '}{clinic.openHours?"Open":"Close"}</Text>

@@ -1,14 +1,24 @@
 // Import your global CSS file
 import "../global.css";
-
 import React, { useEffect } from "react";
 import { SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
 
 import { EmailProvider } from "../context/EmailContext";
-import GlobalProvider from "../context/GlobalProvider"
+import GlobalProvider from "../context/GlobalProvider";
+import { LoadingProvider } from './../context/Loader'
+
+import { ClerkLoaded, ClerkProvider } from '@clerk/clerk-expo';
+import { tokenCache } from '@clerk/clerk-expo/token-cache';
+
 
 SplashScreen.preventAutoHideAsync();
+
+
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
+if (!publishableKey) {
+  throw new Error("Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in .env file");
+}
 
 const RootLayout = () => {
   const [fontsLoaded, error] = useFonts({
@@ -28,11 +38,14 @@ const RootLayout = () => {
     return null;
   }
   return (
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+      <ClerkLoaded>
     <GlobalProvider>
     
-    <EmailProvider>   
+    <EmailProvider>  
+      <LoadingProvider>
     <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="index" options={{ headerShown: false}} />
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="(forgetPassword)" options={{ headerShown: false }} />
       <Stack.Screen name="(userProfile)" options={{ headerShown: false }} />
@@ -41,8 +54,11 @@ const RootLayout = () => {
       
       
     </Stack>
+    </LoadingProvider> 
     </EmailProvider>
     </GlobalProvider>
+    </ClerkLoaded>
+    </ClerkProvider>
   );
   // <StatusBar backgroundColor= "#000000" style="light" />
 };

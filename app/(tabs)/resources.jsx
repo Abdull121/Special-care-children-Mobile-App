@@ -6,11 +6,19 @@ import ResourcesCard from "../../components/ResourcesCard";
 import useYouTubeVideoFetcher from "../../components/YoutubeVideos";
 import useGamesFetcher from "../../components/FetchGmaes";
 import useLocationServicesFetcher from "../../components/LocationServices";
+import { useGlobalContext } from "../../context/GlobalProvider";
 //keyword:"Parenting special needs children Urdu"
 
-const SEARCH_QUERY = " Parenting special neeed care children urdu";
+
+
 
 const Resources = () => {
+    const { user, } = useGlobalContext();
+
+  //get videos
+  const SEARCH_QUERY = user?.primaryCondition 
+  ? `Parenting children with ${user.primaryCondition} special needs in Urdu`
+  : 'Parenting children with special needs in Urdu';
     
 const gameListRef = useRef(null);
     const { videos, isLoading: videosLoading } = useYouTubeVideoFetcher(SEARCH_QUERY);

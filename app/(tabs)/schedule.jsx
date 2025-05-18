@@ -115,9 +115,9 @@ const Schedule = () => {
   };
   const taskStatistics = useMemo(() => getTaskStatistics(tasks, completedTasks), [tasks, completedTasks]);
   useEffect(() => {
-    console.log(taskStatistics);
+    //console.log(taskStatistics);
     const { emoji, childMood, completedCount, totalTasks } = taskStatistics;
-    console.log("useEffect", emoji, childMood, completedCount, totalTasks);
+    //console.log("useEffect", emoji, childMood, completedCount, totalTasks);
     updateChildMood(emoji, childMood, completedCount, totalTasks);
     createChildMood(emoji, childMood, completedCount, totalTasks);
 
@@ -126,7 +126,7 @@ const Schedule = () => {
   }, [taskStatistics]);
 
   const fetchTasks = async () => {
-    console.log("fetching tasks..");
+    //console.log("fetching tasks..");
     setIsLoading(true);
     try {
       const response = await config.getAllTasks();
@@ -142,9 +142,9 @@ const Schedule = () => {
         setCompletedTasks(completed);
       });
 
-      console.log("fetching tasks Complete");
+      // console.log("fetching tasks Complete");
     } catch (error) {
-      Alert.alert("Error", "Failed to fetch tasks");
+      Alert.alert("Error", "No tasks found");
     }
     finally {
       setIsLoading(false); // Stop loading spinner
@@ -156,9 +156,9 @@ const Schedule = () => {
 
   const createChildMood = async (emoji, childMood, completedCount, totalTasks  ) => {
     try {
-      console.log("before sending", emoji, childMood, completedCount, totalTasks);
+      //console.log("before sending", emoji, childMood, completedCount, totalTasks);
       const response = await config.createChildMood(emoji, childMood,  completedCount, totalTasks);
-      console.log("crete Child Mood",response);
+      // console.log("crete Child Mood",response);
     } catch (error) {
       console.log(error);
     }
@@ -177,13 +177,13 @@ const Schedule = () => {
     
 
          
-       console.log("getAllChildMood", getAllChildMood);
+       //console.log("getAllChildMood", getAllChildMood);
       
         const documentId = getAllChildMood[0].$id
       
       
       const response = await config.updateChildMood(emoji, childMood,  completedCount, totalTasks, documentId );
-      console.log("updated",response);
+      //console.log("updated",response);
       
       
       
@@ -333,11 +333,11 @@ const Schedule = () => {
 
         // Fetch the task document ID
         const response = await config.getAllTasks(taskId);
-        console.log(response)
+        //console.log(response)
         const updateId = response[0].$id;
 
         const newStatus = isCurrentlyCompleted ? "pending" : "completed";
-        console.log("task Status", newStatus);  
+        //console.log("task Status", newStatus);  
 
         // Update backend
         await config.updateTaskStatus(updateId, newStatus);
@@ -362,9 +362,9 @@ const Schedule = () => {
 
               const result = prevTasks.filter((task) => task.id !== taskId);
               // Update statistics correctly
-              console.log(
-                getTaskStatistics([...prevTasks], [...completedTasks])
-              );
+              // console.log(
+              //   getTaskStatistics([...prevTasks], [...completedTasks])
+              // );
               const { emoji, childMood,  completedCount, totalTasks} = getTaskStatistics(
                 [...prevTasks],
                 [...completedTasks]
@@ -402,28 +402,7 @@ const Schedule = () => {
 
   
   const TaskBox = React.memo(({ title, bgColor, tasks = [], isCompleted }) => {
-    // const formatDate = (taskDate, taskTime) => {
-    //   try {
-    //     if (!taskDate || !taskTime) return "Invalid Date";
-    //     const [day, month, year] = taskDate.split("/").map(Number);
-    //     const timeParts = taskTime.match(/(\d+):(\d+) ([APap][Mm])/);
-    //     if (!timeParts) return "Invalid Time";
-    //     let [hours, minutes] = timeParts.slice(1, 3).map(Number);
-    //     const period = timeParts[3].toUpperCase();
-    //     if (period === "PM" && hours !== 12) hours += 12;
-    //     if (period === "AM" && hours === 12) hours = 0;
-    //     const taskDateTime = new Date(year, month - 1, day, hours, minutes);
-    //     if (isNaN(taskDateTime)) return "Invalid Date";
-    //     const formattedTime = format(taskDateTime, "h:mm a");
-    //     if (isToday(taskDateTime)) return `Today, ${formattedTime}`;
-    //     if (isTomorrow(taskDateTime)) return `Tomorrow, ${formattedTime}`;
-    //     console.log(`${format(taskDateTime, "MMM d")}, ${formattedTime}`)
-    //     return `${format(taskDateTime, "MMM d")}, ${formattedTime}`;
-    //   } catch (error) {
-    //     console.error("Date formatting error:", error);
-    //     return "Invalid Date";
-    //   }
-    // };
+    
 
 
     const formatDate = (taskDate, taskTime) => {

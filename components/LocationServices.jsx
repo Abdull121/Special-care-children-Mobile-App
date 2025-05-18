@@ -3,10 +3,22 @@ import * as Location from 'expo-location';
 import axios from 'axios';
 import uuid from 'react-native-uuid';
 import Constants from 'expo-constants';
+import { useGlobalContext } from "../context/GlobalProvider"
 
-const place_API = Constants.expoConfig?.extra?.PLACE_API;
+// const place_API = Constants.expoConfig?.extra?.PLACE_API;
+const place_API = process.env.PLACE_API || Constants.expoConfig?.extra?.PLACE_API;
+
 
 const useLocationServicesFetcher = (numToShow = 3) => {
+  const { user, } = useGlobalContext();
+  
+    //get Doctor Location Search Query
+    const doctorQuery = user?.primaryCondition 
+    ? `special care ${user.primaryCondition} children Doctor `
+    : 'special care children Doctor';
+    //get Schools Location Search Query
+    const schoolsQuery = 'special needs school for children in Pakistan';
+
   const [clinics, setClinics] = useState([]);
   const [schools, setSchools] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,7 +60,7 @@ const useLocationServicesFetcher = (numToShow = 3) => {
   const fetchNearbyClinics = async (lat, lon) => {
     try {
       const response = await axios.get(
-        `https://maps.gomaps.pro/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=5000&type=doctor&keyword=special care children&key=${place_API}`
+        `https://maps.gomaps.pro/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=5000&type=doctor&keyword=${doctorQuery}&key=${place_API}`
       );
       
       const clinicsData = response.data.results.map((element) => {
@@ -71,10 +83,10 @@ const useLocationServicesFetcher = (numToShow = 3) => {
         const fetchNearbySchools = async (lat, lon) => {
           try {
               const response = await axios.get(
-                  `https://maps.gomaps.pro/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=5000&type=school&keyword=special care children school&key=${place_API}`
+                  `https://maps.gomaps.pro/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=6000&type=school&keyword=${schoolsQuery}&key=${place_API}`
               );
               const schoolData = response.data.results.map((element) => {
-                  let name = element.name || "Child Specialist Autism School";
+                  let name = element.name || "Child Specialist School";
                   let address = element.vicinity;
                   let rating = element.rating;
                   let lat = element.geometry?.location?.lat;

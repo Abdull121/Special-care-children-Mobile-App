@@ -1,12 +1,19 @@
-// This file is used by EAS Build to configure the build process for your app.
+
 {
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_Z3VpZGVkLXNvbGUtNjUuY2xlcmsuYWNjb3VudHMuZGV2JA"
+      }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_Z3VpZGVkLXNvbGUtNjUuY2xlcmsuYWNjb3VudHMuZGV2JA"
+      }
+      
     },
     "production": {}
   }

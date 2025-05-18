@@ -3,8 +3,31 @@ import { View, Text, Image, TouchableOpacity } from "react-native";
 import * as Linking from 'expo-linking';
 import { router } from "expo-router";
 
-const CommunitySection = ({CommunitySection, data}) => {
+const CommunityCard= ({CommunitySection, data}) => {
+
   // console.log(data, "data in community card")
+
+  if (!data) {
+    // Return a fallback UI when data is not available
+    return (
+      <View>
+        {CommunitySection && (
+          <View className="flex-row justify-between mb-3 mt-3">
+            <Text className="text-xl font-bold">Community</Text>
+            <TouchableOpacity onPress={() => router.push("/community")}>
+              <Text className="text-blue-600 font-bold pr-2">View all</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        <View className="border border-primary rounded-lg p-4 bg-gray-100">
+          <Text className="text-gray-500 text-sm mt-1">No community posts available right now.</Text>
+        </View>
+      </View>
+    );
+  }
+
+
+
    const { title, description, author, date, featuredImage, postLink} = data;
   return (
     <View >
@@ -38,7 +61,7 @@ const CommunitySection = ({CommunitySection, data}) => {
         />
 
         
-          <Text className="text-blue-600 font-bold mt-2" numberOfLines={1}>{title}</Text>
+          <Text className="text-blue-600 font-bold mt-2" numberOfLines={1}>{title||"Special Care Children Problems"}</Text>
        
 
         <Text className="text-gray-500 text-sm mt-1 " numberOfLines={3}>
@@ -55,4 +78,4 @@ const CommunitySection = ({CommunitySection, data}) => {
   );
 };
 
-export default CommunitySection;
+export default CommunityCard;

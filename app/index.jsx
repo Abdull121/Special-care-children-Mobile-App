@@ -1,4 +1,12 @@
-import { Image, ScrollView, Text, View, ImageBackground, ActivityIndicator } from "react-native";
+import {
+  Image,
+  ScrollView,
+  Text,
+  View,
+  ImageBackground,
+  ActivityIndicator,
+  StyleSheet
+} from "react-native";
 import images from "../constants/images";
 import background from "../assets/images/background.png";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -6,19 +14,30 @@ import { StatusBar } from "expo-status-bar";
 import CustomButton from "../components/CustomButton";
 import { Redirect, router } from "expo-router";
 import { useGlobalContext } from "../context/GlobalProvider";
+import React from "react";
 
 export default function Index() {
-
-
   const { loading, isLogged } = useGlobalContext();
-
 
   if (!loading && isLogged) return <Redirect href="/home" />;
 
   return (
     <>
       {loading ? (
-        <ActivityIndicator testID="loading-indicator" size="small" color="#fff" />
+        <View style={styles.fullScreenContainer}>
+                  {/* Your app logo */}
+                  <Image 
+                    source={require('../assets/images/children.png')}  // Update path to your logo
+                    style={styles.logo}
+                    resizeMode="contain"
+                  />
+                  
+                  <Text style={styles.appTitle}>SPECIAL CARE</Text>
+                  
+                  <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color="#0166FC" />
+                  </View>
+                </View>
       ) : (
         <ImageBackground
           source={background}
@@ -42,7 +61,7 @@ export default function Index() {
                   emotional needs.
                 </Text>
                 <CustomButton
-                 testID="get-started-button"
+                  testID="get-started-button"
                   handlePress={() => router.push("/login")}
                   title="Get Started"
                   textStyles="text-center text-black-Default text-[14px] font-psemibold"
@@ -57,3 +76,30 @@ export default function Index() {
     </>
   );
 }
+const styles = StyleSheet.create({
+  fullScreenContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF', // Use your app's background color
+    padding: 20,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 20,
+  },
+  appTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#0166FC', // Use your primary color
+    marginBottom: 40,
+    fontFamily: 'Poppins-Bold',
+  },
+  loaderContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  
+});
