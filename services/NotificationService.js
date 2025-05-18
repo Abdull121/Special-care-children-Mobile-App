@@ -100,7 +100,7 @@ const NotificationService = {
       return notificationId;
     } catch (error) {
       console.error('Notification Error:', error);
-      throw error;
+       throw error;
     }
   },
 

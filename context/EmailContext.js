@@ -1,3 +1,5 @@
+//making a context for Forget Password email
+
 import React, { createContext, useState, useContext } from "react";
 
 const EmailContext = createContext(null);

@@ -3,8 +3,13 @@ import Constants from 'expo-constants';
 
 import * as FileSystem from 'expo-file-system'; // for converting image to Blob
 
+import * as SecureStore from 'expo-secure-store';
+
 
 export class Service{
+    
+
+    
     client = new Client();
     databases;
     bucket;
@@ -29,39 +34,49 @@ export class Service{
         this.avatars = new Avatars(this.client)
         this.account = new Account(this.client);
     }
+    
 
-    async createChildProfile({childName, age, primaryCondition}){
-
-        const currentAccount = await this. account.get();
-
-        const avatarUrl = this.avatars.getInitials(childName);
+    async createChildProfile({ childName, age, primaryCondition }) {
         try {
-           const childAccount = await this.databases.createDocument(
-                this.appwriteConfig.appwriteDatabaseId,
-                this.appwriteConfig.childCollectionId,
-                ID.unique(),
-                
-                {
-                   childName,
-                     age,
-                    primaryCondition,
-                    avatar: avatarUrl.toString(),
-                    accountId: currentAccount.$id
-                    
-                    
-                }
-                
-            )
-
-            if(!childAccount) throw ERROR
-            return childAccount;
-                 
-
-
+          const googleAuthId = await SecureStore.getItemAsync('token');
+          //console.log("Stored token (Google Auth ID):", googleAuthId);
+      
+          let currentAccount = null;
+          try {
+            currentAccount = await this.account.get();
+          } catch (err) {
+            console.log("No current Appwrite account session found:", err.message);
+          }
+      
+          const accountId = currentAccount?.$id || googleAuthId;
+          if (!accountId) {
+            throw new Error("Unable to determine account ID for child profile.");
+          }
+      
+          const avatarUrl = this.avatars.getInitials(childName);
+      
+          const childAccount = await this.databases.createDocument(
+            this.appwriteConfig.appwriteDatabaseId,
+            this.appwriteConfig.childCollectionId,
+            ID.unique(),
+            {
+              childName,
+              age,
+              primaryCondition,
+              avatar: avatarUrl.toString(),
+              accountId,
+            }
+          );
+      
+          if (!childAccount) throw new Error("Failed to create child profile");
+      
+          return childAccount;
         } catch (error) {
-            console.log("Appwrite serive :: createChileProfile :: error", error);
+          console.error("Appwrite Service :: createChildProfile :: error", error);
+          return null;
         }
-    }
+      }
+      
 
 
     //get current Account id
@@ -82,9 +97,25 @@ export class Service{
     //task created
 
      async taskCreated (taskData) {
-        const userId = await this.getAccount();
+        // const userId = await this.getAccount();
        
         try {
+
+            const googleAuthId = await SecureStore.getItemAsync('token');
+          //console.log("Stored token (Google Auth ID):", googleAuthId);
+          let currentAccount = null;
+          try {
+            currentAccount = await this.getAccount()
+          }catch (err) {
+            console.log("No current Appwrite account session found:", err.message);
+          }
+            const userId = currentAccount || googleAuthId;
+            console.log("userId",userId)
+            if (!userId) {
+                throw new Error("Unable to determine user ID for task creation.");
+            }
+
+
             const response = await this.databases.createDocument(
                 this.appwriteConfig.appwriteDatabaseId,
                 this.appwriteConfig.scheduleCollectionId,
@@ -98,8 +129,8 @@ export class Service{
             );
             return response;
         } catch (error) {
-            console.error('Appwrite service :: createTask :: error: ', error);
-            throw error;
+            console.log('Appwrite service :: createTask :: error: ', error);
+            // throw error;
         }
     }
 
@@ -107,8 +138,23 @@ export class Service{
     async getAllTasks(taskId) {
         //console.log(taskId)
         if(!taskId){
-            const accountId = await this.getAccount();
+            
         try {
+            const googleAuthId = await SecureStore.getItemAsync('token');
+           // console.log("Stored token (Google Auth ID):", googleAuthId);
+            let currentAccount = null;
+          try {
+            currentAccount = await this.account.get();
+          } catch (err) {
+            console.log("No current Appwrite account session found:", err.message);
+          }
+      
+          const accountId = currentAccount?.$id || googleAuthId;
+          if (!accountId) {
+            throw new Error("Unable to determine account ID for child profile.");
+          }
+            
+
             const response = await this.databases.listDocuments(
                 this.appwriteConfig.appwriteDatabaseId,
                 this.appwriteConfig.scheduleCollectionId,
@@ -167,8 +213,21 @@ export class Service{
         async fetchChildMood() {
 
             try {
-                const userId = await this.getAccount(); // Get current user
-                console.log(userId)
+                const googleAuthId = await SecureStore.getItemAsync('token');
+                //console.log("Stored token (Google Auth ID):", googleAuthId);
+                let currentAccount = null;
+                try {
+                    currentAccount = await this.account.get();
+                } catch (err) {
+                    console.log("No current Appwrite account session found:", err.message);
+                }
+                const userId = currentAccount?.$id || googleAuthId;
+                if (!userId) {
+                    throw new Error("Unable to determine user ID for task creation.");
+                }
+                console.log("userId",userId)
+
+                
                 const response = await this.databases.listDocuments(
                     this.appwriteConfig.appwriteDatabaseId,
                     this.appwriteConfig.childModeCollectionId, // Collection ID
@@ -193,9 +252,24 @@ export class Service{
                 if(dataExist.length === 0 ){
                     console.log("data not exist")
                     // create new document
-                    const userId = await this.getAccount();
+                    
                 
                     try {
+                        const googleAuthId = await SecureStore.getItemAsync('token');
+                        //console.log("Stored token (Google Auth ID):", googleAuthId);
+                        let currentAccount = null;
+                        try {
+                            currentAccount = await this.getAccount();
+                        } catch (err) {
+                            console.log("No current Appwrite account session found:", err.message);
+                        }
+                        const userId = currentAccount || googleAuthId;
+                        if (!userId) {
+                            throw new Error("Unable to determine user ID for task creation.");
+                        }
+                        
+
+
                         const response = await this.databases.createDocument(
                             this.appwriteConfig.appwriteDatabaseId,
                             this.appwriteConfig.childModeCollectionId,
@@ -278,14 +352,29 @@ export class Service{
 
              async getPosts() {
 
-                const currentAccount = await this. account.get();
-                console.log("current Account",currentAccount)
+                
                 try {
+                    const googleAuthId = await SecureStore.getItemAsync('token');
+                    //console.log("Stored token (Google Auth ID):", googleAuthId);
+                    let userId = null;
+                    try {
+                        userId = await this.account.get();
+                        console.log("userId",userId)
+                    } catch (err) {
+                        console.log("No current Appwrite account session found:", err.message);
+                    }
+                    const currentAccount = userId?.$id || googleAuthId;
+                    console.log("currentAccount get post",currentAccount)
+                    if (!currentAccount) {
+                        throw new Error("Unable to determine user ID and google Auth for get task.");
+                    }
+                    // const currentAccount = await this.account.get();
+                    // console.log("current Account",currentAccount)
                     
                     const getChildDetails = await this.databases.listDocuments(
                         this.appwriteConfig.appwriteDatabaseId,
                         "67b49f530015792eaaff", // Collection ID for child details
-                        [Query.equal("accountId", currentAccount.$id)] // Fetch only current user’s posts
+                        [Query.equal("accountId", currentAccount)] // Fetch only current user’s posts
                        
                         
                     );
@@ -324,16 +413,31 @@ export class Service{
             async updateChildProfile ( childName, age, primaryCondition, avatar) {
                 //console.log( childName, age, primaryCondition)
                 
-                const currentAccount = await this.account.get();
-                console.log("current Account",currentAccount)
-                const childId = currentAccount.$id
-                console.log("childId",childId)
+                
+                
                 try {
+
+                    const googleAuthId = await SecureStore.getItemAsync('token');
+                    //console.log("Stored token (Google Auth ID):", googleAuthId);
+                    let userId = null;
+                    try {
+                        userId = await this.account.get();
+                    } catch (err) {
+                        console.log("No current Appwrite account session found:", err.message);
+                    }
+                    const currentAccount = userId?.$id || googleAuthId;
+                    if (!currentAccount) {
+                        throw new Error("Unable to determine user ID for task creation.");
+                    }
+                    console.log("userId",currentAccount)
+
+                    // const currentAccount = await this.account.get();
+                    // console.log("current Account",currentAccount)
 
                     const getChildDetails = await this.databases.listDocuments(
                         this.appwriteConfig.appwriteDatabaseId,
                         "67b49f530015792eaaff", // Collection ID for child details
-                        [Query.equal("accountId", currentAccount.$id)] // Fetch only current user’s posts
+                        [Query.equal("accountId", currentAccount)] // Fetch only current user’s posts
                        
                         
                     );
@@ -404,7 +508,21 @@ export class Service{
 
             getChildModeData = async()=>{
                 try{
-                    const userId = await this.getAccount(); // Get current user
+                    const googleAuthId = await SecureStore.getItemAsync('token');
+                    //console.log("Stored token (Google Auth ID):", googleAuthId);
+                    let currentAccount = null;
+                    try{
+                        currentAccount = await this.getAccount(); //it gives the current user id
+                    }catch (err) {
+                        console.log("No current Appwrite account session found:", err.message);
+                    }
+                    const userId = currentAccount || googleAuthId;
+                    if (!userId) {
+                        throw new Error("Unable to determine user ID for task creation.");
+                    }
+                    
+                     
+                    // const userId = await this.getAccount(); // Get current user
                     // console.log(userId)
                     const response = await this.databases.listDocuments(
                         this.appwriteConfig.appwriteDatabaseId,
@@ -424,8 +542,21 @@ export class Service{
             //get Today task for the home screen
             getTodayTask = async() => {
                 try {
+                     const googleAuthId = await SecureStore.getItemAsync('token');
+                    //console.log("Stored token (Google Auth ID):", googleAuthId);
+
+                    let currentAccount = null;
+                    try {
+                        currentAccount = await this.getAccount();
+                    } catch (err) {
+                        console.log("No current Appwrite account session found:", err.message);
+                    }
+                    const userId = currentAccount || googleAuthId;
+                    if (!userId) {
+                        throw new Error("Unable to determine user ID for task creation.");
+                    }
                     // Get current user
-                    const userId = await this.getAccount();
+                    // const userId = await this.getAccount();
                     
                     // Format today's date as DD/MM/YYYY to match your Appwrite format
                     const today = new Date();

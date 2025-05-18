@@ -1,17 +1,19 @@
-import { ScrollView, Text, View, Image, ActivityIndicator, Alert } from "react-native";
-import React, { useState } from "react";
+import { ScrollView, Text, View, Image, ActivityIndicator, Alert, } from "react-native";
+import React, { useState} from "react";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FormFields from "../../components/FormFields";
-import { Link, Redirect, router } from "expo-router";
+import { Link, router } from "expo-router";
 import CustomButton from "../../components/CustomButton";
-import icons from "../../constants/icons";
 import authService from "../../Appwrite/auth";
-
+import GoogleAuthButton from "../../components/GoogleAuthButton";
 import { useGlobalContext } from "../../context/GlobalProvider";
 
+
 const login = () => {
+  
   const { setUser, setIsLogged } = useGlobalContext();
+  
   
   const [form, setForm] = useState({
     email: "",
@@ -32,14 +34,13 @@ const login = () => {
   };
 
   const validatePassword = (password) => {
-    return password.length >= 8; // Example: Minimum 8 characters
+    return password.length >= 8; //  Minimum 8 characters
   };
 
   const handleSubmit = async () => {
     setErrors("")
 
     setLoading(true);
-
 
     const { email, password } = form;
     let isValid = true;
@@ -93,32 +94,8 @@ const login = () => {
     }
   };
 
-  //handle google auth
-  const handleGoogleAuth = async () => {
-
-    
-      try {
-      const response = await authService.googleAuth();
-      if (response) {
-        console.log("Logged in successfully");
-        router.replace('/home')
-      } else {
-        console.log("error failed to login with google response not created");
-      }
-    } catch (error) {
-      Alert.alert(
-        "Incorrect",
-        error.message || "Something went wrong. Please try again.",
-        [
-          { text: "OK", onPress: () => console.log("OK Pressed") }
-        ]
-      );
-      console.log("Login error:", error);
-    
-    }
-    
-    
-  };
+ 
+  
 
   return (
     <SafeAreaView className="h-full px-4 bg-white">
@@ -178,22 +155,16 @@ const login = () => {
             <Text className="mx-4 text-[#A4A6A6]">OR</Text>
             <View className="flex-1 h-[1px] bg-gray-300" />
           </View>
-          <CustomButton
-            handlePress={handleGoogleAuth}
-            title={
-              <View className="flex-row items-center justify-center">
-                <Image
-                  source={icons.google}
-                  style={{ width: 20, height: 20, marginRight: 10 }}
-                />
-                <Text className="text-center text-black-Default text-[14px] font-psemibold">
-                  Login with Google
-                </Text>
-              </View>
-            }
-            textStyles=""
-            container="mt-2 w-full h-12 rounded-[4px] bg-white border-2 border-black bg-transparent"
+
+
+          {/* Use the new GoogleAuthButton component */}
+          
+          <GoogleAuthButton 
+            buttonText="Login with Google"
+            isSignUp={false}
           />
+
+
           <View className="mt-6 flex-row justify-center">
             <Text className="text-black-Default text-[14px] font-pregular">
               Don't have an account?{" "}

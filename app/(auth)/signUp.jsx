@@ -9,6 +9,7 @@ import CustomButton from "../../components/CustomButton";
 import icons from "../../constants/icons";
 import authService from '../../Appwrite/auth';
 import { useGlobalContext } from "../../context/GlobalProvider";
+import GoogleAuthButton from "../../components/GoogleAuthButton";
 
 
 
@@ -196,21 +197,13 @@ const SignUp = () => {
 
             <View className="flex-1 h-[1px] bg-gray-300" />
           </View>
-          <CustomButton
-            handlePress={() => { }}
-            title={
-              <View className="flex-row items-center justify-center">
-                <Image
-                  source={icons.google}
-                  style={{ width: 20, height: 20, marginRight: 10 }}
-                />
-                <Text className="text-center text-black-Default text-[14px] font-psemibold">
-                  Sign Up with Google
-                </Text>
-              </View>
-            }
-            textStyles=""
-            container="mt-2 w-full h-12 rounded-[4px] bg-white border-2 border-black bg-transparent"
+
+
+          {/* Use the new GoogleAuthButton component */}
+          
+          <GoogleAuthButton 
+            buttonText="Sign Up with Google"
+            isSignUp={false}
           />
 
           <View className="mt-6 flex-row justify-center">

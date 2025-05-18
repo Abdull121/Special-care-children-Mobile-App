@@ -1,12 +1,6 @@
-import { Client, Account, ID, OAuthProvider, Databases, Query } from "react-native-appwrite";
+import { Client, Account, ID,  Databases, Query, } from "react-native-appwrite";
 import Constants from 'expo-constants';
-import * as Linking from 'expo-linking';
-import { openAuthSessionAsync } from "expo-web-browser";
-import { Alert } from "react-native";
-
-
-
-
+import * as SecureStore from 'expo-secure-store';
 
 export class AuthService {
 
@@ -34,7 +28,8 @@ export class AuthService {
 
 
         if (!this.appwriteConfig.appwriteUrl || !this.appwriteConfig.appwriteProjectId) {
-            throw new Error("Appwrite configuration is missing");
+            //throw new Error("Appwrite configuration is missing");
+            return null;
         }
 
         this.client
@@ -45,36 +40,7 @@ export class AuthService {
     }
 
 
-    // constructor() {
-    //     // Log the raw values first
-    //     console.log('Raw config values:', {
-    //         url: Constants.expoConfig.extra.APPWRITE_URL,
-    //         projectId: Constants.expoConfig.extra.APPWRITE_PROJECT_ID
-    //     });
-
-    //     // Explicitly convert to strings and trim any whitespace
-    //     const endpoint = String(Constants.expoConfig.extra.APPWRITE_URL).trim();
-    //     const projectId = String(Constants.expoConfig.extra.APPWRITE_PROJECT_ID).trim();
-
-    //     // Log the processed values
-    //     console.log('Processed values:', {
-    //         endpoint,
-    //         projectId
-    //     });
-
-    //     try {
-    //         this.client
-    //             .setEndpoint(endpoint)
-    //             .setProject(projectId);
-
-    //         this.account = new Account(this.client);
-    //         console.log('Client setup successful');
-    //     } catch (error) {
-    //         console.error('Setup error:', error);
-    //         throw error;
-    //     }
-    // }
-
+    
 
 
     async createAccount({ email, password, name }) {
@@ -106,8 +72,9 @@ export class AuthService {
 
             return newUser;
         } catch (error) {
-            console.error("createAccount error::", error);
-            throw error;
+            // console.error("createAccount error::", error);
+            // throw error;
+            return null;
         }
     }
 
@@ -134,7 +101,8 @@ export class AuthService {
           // Create new session
           return await this.account.createEmailPasswordSession(email, password);
         } catch (error) {
-          console.error("Login error:", error);
+          // console.log("Login error:", error);
+          
           
           // Handle specific session conflict error
           if (error.code === 409) {
@@ -152,38 +120,58 @@ export class AuthService {
       
           return currentAccount;
         } catch (error) {
-          throw new Error(error);
+          //console.log("getAccount error::", error);
+          return null;
+          // throw new Error(error);
         }
-      }
+      } 
 
 
             
 
-            // Get Current User
+            // Get Current User  and use in GlobalProvider
         async  getCurrentUser() {
             try {
                 //await this.account.deleteSessions();
-            const currentAccount = await this.getAccount();
-             console.log("current Account",currentAccount)
+                const googleAuthId = await SecureStore.getItemAsync('token');
+                //console.log("Stored token (Google Auth ID) Global State:", googleAuthId);
+
+                let userId = null;
+          try {
+            userId = await this.getAccount();
+          } catch (err) {
+            //console.log("No current Appwrite account session found:", err.message);
+            return null;
+          }
+
+          const currentAccount = userId?.$id || googleAuthId;
+          if (!currentAccount) {
+            //console.log("No authenticated user found.");
+            return false;
+          }
+
+
+            // const currentAccount = await this.getAccount();
+             //console.log("current Account",currentAccount)
              if (!currentAccount) {
-                console.error("No authenticated user found.");
+                // console.log("No authenticated user found.");
                 return false;
             }
         
             const currentUser = await this.databases.listDocuments(
                 this.appwriteConfig.appwriteDatabaseId,
                 this.appwriteConfig.childCollectionId,
-                [Query.equal("accountId", currentAccount.$id)]
+                [Query.equal("accountId", currentAccount)]
                 
             );
 
             if (!currentUser.documents.length) {
-                console.error("No user found in the database for the current account.");
+                // console.log("No user found in the database for the current account.");
                 return null;
             }
 
-            console.log(currentUser.documents[0])
-            console.log("current user",currentAccount)
+            // console.log(currentUser.documents[0])
+            // console.log("current user",currentAccount)
            
         
             // if (!currentUser) throw Error;
@@ -196,10 +184,13 @@ export class AuthService {
                     error.code === 401 || // Unauthorized
                     error.code === 403    // Forbidden
                   ) {
-                    console.log("User not authenticated");
-                  } else {
-                    console.error("Error in getCurrentUser:", error);
-                  }
+                    // console.log("User not authenticated");
+                    return false; // User is not authenticated
+                  } 
+                  // else {
+                  //   // console.error("Error in getCurrentUser:", error);
+                    
+                  // }
                   return null;
             }
         }
@@ -207,132 +198,48 @@ export class AuthService {
 
     
 
+    
 
-
-
-
-
-
-    //get user Avatar
-    async getUserAvatar() {
-
+    async logout(signOut) {
         try {
-            const response = await this.account.get();
-            if(response.$id){
-                const userAvatar = this.avatars.getInitials(response.name)
-                return {...response, avatar: userAvatar.toString()} 
+            // 1. Always clear Clerk session first (regardless of Appwrite status)
+            try {
+                await signOut();
+                // console.log("Clerk signOut completed successfully");
+            } catch (clerkError) {
+                // console.error("Error signing out from Clerk:", clerkError);
+                return null; // Return null to indicate failure
             }
-        } catch (error) {
-            console.error("getCurrentUser error::", error);
-            return null;
-        }
-    }
-
-    async logout() {
-        try {
-            await this.account.deleteSessions();
-        } catch (error) {
-            console.error("logout error::", error);
-        }
-    }
-
-
-    async googleAuth() {
-        try {
-            const redirectUri = Linking.createURL("/");
-            console.log("redirectUri:", redirectUri);
-    
-            const response = await this.account.createOAuth2Session(OAuthProvider.Google);
-            if (!response) throw new Error("Google authentication failed");
-    
-            const browserResult = await openAuthSessionAsync(response.toString(), redirectUri);
-            console.log('Browser Result:', browserResult);
-            if (browserResult.type !== 'success') throw new Error("failed to login with google");
-    
-            // Make sure browserResult.url exists before creating URL object
-            if (!browserResult.url) {
-                throw new Error("No URL returned from Google auth");
+            
+            // 2. Then clear all local tokens
+            await SecureStore.deleteItemAsync('token');
+            
+            // 3. Finally, clean up Appwrite sessions
+            try {
+                const currentAccount = await this.account.get();
+                if (currentAccount) {
+                    await this.account.deleteSessions();
+                    // console.log("Appwrite account sessions deleted successfully");
+                }
+            } catch (appwriteError) {
+                // console.log("No active Appwrite session found:", appwriteError.message);
+                return null; // Return null to indicate failure
             }
-    
-            const url = new URL(browserResult.url);
-            const secret = url.searchParams.get('secret')?.toString();
-            const userId = url.searchParams.get('userId')?.toString();
-            if (!secret || !userId) throw new Error("Failed to login with google");
-    
-            const session = await this.account.createSession(userId, secret);
-            if (!session) throw new Error("Failed to create session!");
-            return true;
-        } catch (error) {
-            console.error("googleAuth error::", error);
-            throw error;
+        } catch (error) {   
+            // console.error("Logout error:", error);
+            // throw error; 
+            return null; // 
         }
     }
 
 
+  
 
     
-
-
-   
-    
-    // async googleAuth() {
-    //     try {
-    //         // Use the default redirect URI provided by Appwrite
-    //         const redirectUri = 'https://cloud.appwrite.io/v1/account/sessions/oauth2/callback/google/67818fcb00244a465e51'; // Replace with your actual default callback URI
-                
-    //         console.log("Redirect URI:", redirectUri);  // Log for debugging
-    
-    //         // Step 1: Start the OAuth2 session with Google (Appwrite will handle the redirect)
-    //         const response = await this.account.createOAuth2Session(OAuthProvider.Google, redirectUri);
-    //         if (!response) throw new Error("Google authentication failed");
-    
-    //         // Step 2: Handle the browser authentication flow
-    //         const browserResult = await openAuthSessionAsync(response.toString(), redirectUri);
-    //         console.log('Browser Result:', browserResult);
-    
-    //         // Step 3: Check if authentication was successful
-    //         if (browserResult.type === 'dismiss') {
-    //             throw new Error("User dismissed the authentication window");
-    //         }
-    //         if (browserResult.type !== 'success') {
-    //             throw new Error("Google authentication failed");
-    //         }
-    
-    //         // Step 4: Ensure the callback URL is returned in the result
-    //         if (!browserResult.url) {
-    //             throw new Error("No URL returned from Google auth");
-    //         }
-    
-    //         // Step 5: Parse the URL from the successful OAuth redirect
-    //         const url = new URL(browserResult.url);
-    //         const secret = url.searchParams.get('secret');
-    //         const userId = url.searchParams.get('userId');
-    
-    //         if (!secret || !userId) throw new Error("Failed to login with Google: missing required parameters");
-    
-    //         // Step 6: Create session using the userId and secret returned
-    //         const session = await this.account.createSession(userId, secret);
-    //         if (!session) throw new Error("Failed to create session!");
-    
-    //         return true;  // Authentication was successful
-    //     } catch (error) {
-    //         console.error("googleAuth error::", error);
-    //         Alert.alert("Google Auth Error", error.message); // Show error message to the user
-    //         throw error;  // Rethrow the error for handling further up the stack
-    //     }
-    // }
-    
-
     
 
     
 };
-
-
-
-    
-
-
 
 
 

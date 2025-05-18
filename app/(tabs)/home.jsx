@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView, Modal, ActivityIndicator } from "react-native";
+import { View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView, Modal, ActivityIndicator, Alert } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import icons from "../../constants/icons";
 import TaskCard from "../../components/TaskCard";
@@ -16,6 +16,7 @@ import {router} from "expo-router";
 import useGamesFetcher from "../../components/FetchGmaes";
 
 
+
 //image picker 
 import * as ImagePicker from 'expo-image-picker';
 
@@ -23,12 +24,19 @@ import * as ImagePicker from 'expo-image-picker';
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { useFocusEffect } from "@react-navigation/native";
 
+import { useAuth} from '@clerk/clerk-expo';
+
 
 
 
 const Home = () => {
+  const { user,setUser } = useGlobalContext();
+ 
+
   //get videos
-  const SEARCH_QUERY = "Parenting special needs children Urdu ";
+  const SEARCH_QUERY = user?.primaryCondition 
+  ? `Parenting special needs ${user.primaryCondition} children Urdu `
+  : 'Parenting special needs children Urdu ';
   const { 
     videos = [], 
     isLoading: videosLoading = false,
@@ -39,7 +47,7 @@ const Home = () => {
    const { games, isLoading: gamesLoading } = useGamesFetcher();
   
   
-  const { user,setUser } = useGlobalContext();
+  
   //console.log(user)
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,8 +58,14 @@ const Home = () => {
 
   const [childData,setChildData] = useState(false);
   const [communityData,setCommunityData] = useState(false);
+  const { signOut } = useAuth();
 
   const [form, setForm] = useState({
+      childName: "",
+      age: "",
+    });
+
+    const [errors, setErrors] = useState({
       childName: "",
       age: "",
     });
@@ -71,18 +85,21 @@ const Home = () => {
 
   useFocusEffect(
       useCallback(() => {
-        
-        fetchTasks();
+        setLoading(true);
+        setTimeout(()=>{
+          fetchTasks();
+        },[3000])
       }, [])
     );
 
 
   const fetchTasks = async () => {
     
-    
-
     setLoading(true);
+
     try {
+        // console.log("userData",user)
+      
       
       const fetchChildMode =  await config.getChildModeData()
       setChildData(fetchChildMode)
@@ -91,26 +108,82 @@ const Home = () => {
       // console.log(todayChildTask);
       setTasks(todayChildTask);
       const communityData = await config.getPosts();
-      console.log(communityData); // Check the fetched data
+      //console.log(communityData); // Check the fetched data
       setCommunityData(communityData);
 
 
     } catch (error) {
-      console.error("Error fetching tasks:", error);
+      //console.error("Error fetching tasks:", error);
+      return null;
     } finally {
-      setLoading(false);
+      
+        setLoading(false);
+      
+      
     }
   };
 
 
   const handelUpdate = async () => {
+
+    // Reset errors
+    setErrors({
+      childName: "",
+      age: "",
+    });
+    // Validate inputs
+    let isValid = true;
+
+    // Validate child name
+    if (!form.childName.trim()) {
+      setErrors(prev => ({...prev, childName: "Name is required"}));
+      Alert.alert("Validation Error", "Child name is required");
+      isValid = false;
+    } else if (form.childName.trim().length > 30) {
+      setErrors(prev => ({...prev, childName: "Name is too long (max 50 characters)"}));
+      Alert.alert("Validation Error", "Child name is too long (maximum 50 characters)");
+      isValid = false;
+    }
+    else if (!/^[a-zA-Z\s]+$/.test(form.childName.trim())) {
+      // Regex to allow only letters and spaces
+      setErrors(prev => ({...prev, childName: "Only letters and spaces allowed"}));
+      Alert.alert("Validation Error", "Child name can only contain letters and spaces");
+      isValid = false;
+    }
+
+    // Validate age
+    if (!form.age.trim()) {
+      setErrors(prev => ({...prev, age: "Age is required"}));
+      Alert.alert("Validation Error", "Age is required");
+      isValid = false;
+    } else {
+      const ageValue = parseInt(form.age.trim(), 10);
+      if (isNaN(ageValue) || ageValue < 1 || ageValue > 99) {
+        setErrors(prev => ({...prev, age: "Age must be between 1 and 99"}));
+        Alert.alert("Validation Error", "Age must be between 1 and 99");
+        isValid = false;
+      }
+    }
+
+
+      // Validate condition selection
+    if (!selectedValue) {
+      Alert.alert("Validation Error", "Please select a primary condition");
+      isValid = false;
+    }
+
+
+    if (!isValid) {
+      return;
+    }
+
     setIsLoading(true);
-    console.log(form.age, form.childName);
+    //console.log(form.age, form.childName);
 
     try {
       for (const item of data) {
         if (item.value === selectedValue) {
-          console.log(item.value);
+          //console.log(item.value);
           const result = await config.updateChildProfile(
              form.childName,
              form.age,
@@ -120,7 +193,7 @@ const Home = () => {
           );
           if (result) {
             setIsLoading(false);
-            console.log("Child profile update successfully");
+            //console.log("Child profile update successfully");
             // Set updated user info in global context
               setUser(prev => ({
                 ...prev,
@@ -136,7 +209,9 @@ const Home = () => {
         }
       }
     } catch (error) {
-      console.log("Appwrite serive :: createChildeProfile :: error", error);
+      setIsLoading(false);
+      Alert.alert("Update Failed", "There was a problem updating the profile. Please try again.");
+      return null;
     }
   }
         const handleModalClose = () => {
@@ -164,7 +239,7 @@ const Home = () => {
           }
           return null;
         } catch (error) {
-          console.error("Image picker error:", error);
+          //console.error("Image picker error:", error);
           return null;
         }
       };
@@ -245,7 +320,7 @@ const Home = () => {
         {/* Progress Card */}
         <View className="bg-gray-200 p-5 rounded-[16px] flex-1">
           <FontAwesome name="check-circle" size={24} color="gray" />
-          <Text className="text-sm mt-1">{childData?.completedTask || '2'}/{childData?.totalTask || '3'
+          <Text className="text-sm mt-1">{childData?.completedTask || '0'}/{childData?.totalTask || '0'
           } Tasks done</Text>
           <Text className="text-lg font-bold mt-1">Activity tasks Completed.</Text>
         </View>
@@ -314,10 +389,10 @@ const Home = () => {
             
             <TaskCard 
              key={task.$id}
-             title={task.title} 
-             description={task.description}
-             time={task.time} 
-             category={task.category}
+             title={task?.title} 
+             description={task?.description}
+             time={task?.time} 
+             category={task?.category}
              date="Today"
             />
           )) 
@@ -332,7 +407,9 @@ const Home = () => {
          {/* Community & Resources Sections */}
          <CommunityCard
           CommunitySection={true}
-          data={communityData[Math.floor(Math.random() * communityData.length)]}
+          data={communityData && communityData.length > 0 
+            ? communityData[Math.floor(Math.random() * communityData.length)] 
+            : null}
         />
 
 
@@ -391,7 +468,7 @@ const Home = () => {
     
                     const selectedImage = await pickImage();
                     if (!selectedImage) {
-                      console.log("No image selected");
+                      //console.log("No image selected");
                       return;
                     }
                     setProfileLoader(true);
@@ -399,18 +476,19 @@ const Home = () => {
                     // console.log(selectedImage);
                     
                       const uploaded = await config.uploadToCloudinary(selectedImage.uri);
-                      console.log(uploaded);
+                      //console.log(uploaded);
                       setTempAvatar(uploaded);
                       
 
                   
                     }catch (error) {
 
-                      console.error("Full component error:", {
-                        name: error.name,
-                        message: error.message,
-                        stack: error.stack
-                      });
+                      // console.error("Full component error:", {
+                      //   name: error.name,
+                      //   message: error.message,
+                      //   stack: error.stack
+                      // });
+                      return null;
                       
                     }
                     finally{
@@ -424,24 +502,40 @@ const Home = () => {
                   </TouchableOpacity>
               </View>
                   
-                  <FormFields
+              <FormFields
                   title="Child Name"
                   placeholder="Enter your child name"
                   keyboardType="default"
                   secureTextEntry={false}
                   value={form.childName}
-                  handleChangeText={(e) => setForm({ ...form, childName: e })}
+                  handleChangeText={(e) => {
+                    setForm({ ...form, childName: e });
+                    if (errors.childName) setErrors(prev => ({...prev, childName: ""}));
+                  }}
                   otherStyle="mt-7"
                 />
+                {errors.childName ? (
+                  <Text className="text-red-500 text-[12px] mt-1">{errors.childName}</Text>
+                ) : null}
+
+
                       <FormFields
-                    title="Age"
-                    placeholder="Enter your child age"
-                    keyboardType="number-pad"
-                    secureTextEntry={false}
-                    value={form.age}
-                    handleChangeText={(e) => setForm({ ...form, age: e })}
-                    otherStyle="mt-7"
-                  />
+                        title="Age"
+                        placeholder="Enter your child age (1-99)"
+                        keyboardType="number-pad"
+                        secureTextEntry={false}
+                        value={form.age}
+                        handleChangeText={(e) => {
+                          // Only allow numbers
+                          const numericValue = e.replace(/[^0-9]/g, '');
+                          setForm({ ...form, age: numericValue });
+                          if (errors.age) setErrors(prev => ({...prev, age: ""}));
+                        }}
+                        otherStyle="mt-7"
+                      />
+                      {errors.age ? (
+                        <Text className="text-red-500 text-[12px] mt-1">{errors.age}</Text>
+                      ) : null}
 
                     {/* Drop Down Field */}
 
@@ -498,18 +592,23 @@ const Home = () => {
                         container="mt-7 w-full h-12 w-[99.6%] rounded-[4px] bg-[#0166FC]"
                       />
                       <CustomButton
-                        handlePress={async()=>{
-
-                          try{
-                            await authService.logout(); 
-                            setUser(null);                       
-                            setModal(false);                    
-                            router.replace('/login');
-                          }catch (error) {
-                            console.error("Appwrite serive :: logout :: error", error);
+                        handlePress={async() => {
+                          try {
+                              await authService.logout(signOut);
+                              setUser(null);
+                              setModal(false);
+                              // await signOut();
+                              
+                              // Add a small delay before redirecting to ensure all cleanup is complete
+                              setTimeout(() => {
+                                  router.replace('/login');
+                              }, 600);
+                          } catch (error) {
+                              //console.error("Logout error:", error);
+                              // Show an error message to the user
+                              Alert.alert("Logout Failed", "There was a problem logging out. Please try again.");
                           }
-                          
-                        }}
+                      }}
                        
                         title="Log Out"
                         textStyles="text-center text-white text-[14px] font-psemibold "
