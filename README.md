@@ -71,7 +71,7 @@ Multilingual support (Urdu, English)
 🛡️ License
 This project is licensed under the MIT License
 
-👨‍💻 Developed By
+## 👨‍💻 Developed By
 Muhammad Abdullah
 Frontend Developer & Final-Year CS Student
 [LinkedIn](https://www.linkedin.com/in/abdullah121/) | [Portfolio](https://abdullahportfoliowebsite.netlify.app/)
