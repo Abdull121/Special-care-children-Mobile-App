@@ -15,6 +15,7 @@ SpecialCare Guide is a mobile application built with **React Native (Expo)** and
   - Home Screen
   - Schedule Screen
   - Community
+  - Ai Chatbot
   - Resources
 - Summary card showing today's highlights (mood, tasks, reminders)
 
