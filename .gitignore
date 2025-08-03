@@ -38,8 +38,12 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
 # Dialogflow credentials
 dialogflow_api/google-credentials.json
 
 config/dialogflow-credentials.json
 
+
+
+dialogflow_api/google-credentials.json
