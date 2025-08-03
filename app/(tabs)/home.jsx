@@ -14,6 +14,7 @@ import useYouTubeVideoFetcher from "../../components/YoutubeVideos";
 import YouTubeVideoPreview from "../../components/VideoPreview";
 import {router} from "expo-router";
 import useGamesFetcher from "../../components/FetchGmaes";
+import ChatBotCard from "../../components/ChartbotCard";
 
 
 
@@ -31,6 +32,8 @@ import { useAuth} from '@clerk/clerk-expo';
 
 const Home = () => {
   const { user,setUser } = useGlobalContext();
+
+  const userName = user?.childName ||  "User";
  
 
   //get videos
@@ -403,6 +406,15 @@ const Home = () => {
           </View>
         ))
         }
+
+        {/* ChatBoat Card */}
+        
+        <ChatBotCard 
+        onPress={() => router.push('/ChatScreen')}
+        userName={userName.split(' ')[0]}
+        
+        />
+        
 
          {/* Community & Resources Sections */}
          <CommunityCard
