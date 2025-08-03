@@ -39,5 +39,5 @@ yarn-error.*
 
 app-example
 
-google-credentials.json
+dialogflow_api/google-credentials.json
 
