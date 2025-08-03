@@ -44,5 +44,12 @@ dialogflow_api/google-credentials.json
 
 config/dialogflow-credentials.json
 
-conifg
+config/
+
+# All credential files (comprehensive protection)
+**/google-credentials.json
+**/dialogflow-credentials.json
+**/*credentials*.json
+**/*-key.json
+**/*serviceAccount*.json
 
