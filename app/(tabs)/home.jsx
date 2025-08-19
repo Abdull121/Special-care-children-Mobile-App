@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView, Modal, ActivityIndicator, Alert } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import icons from "../../constants/icons";
 import TaskCard from "../../components/TaskCard";
 import CommunityCard from "../../components/CommunityCard";
 import ResourceCard from "../../components/ResourcesCard";

@@ -608,7 +608,7 @@ const ChatScreen = () => {
     setIsTyping(true);
 
     try {
-      const response = await fetch('https://dialogflow-api-flax.vercel.app/chat', {
+      const response = await fetch('https://testing-apis-gamma.vercel.app/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

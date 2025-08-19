@@ -138,16 +138,16 @@ const checkEmail = async (email) => {
 
       if (result.success) {
         if (result.exists) {
-          console.log("✅ Email found:", email)
+          console.log(" Email found:", email)
           return { success: true, message: "Email found" };
         } else {
-          console.log("❌ Email is not found:", email);
+          console.log(" Email is not found:", email);
           return { success: false, message: "Email found" };
           
         }
         
       } else {
-        console.error("⚠️ Unexpected response:", result);
+        console.error("Unexpected response:", result);
         return { success: false, message: "Unexpected response format" };
       }
     }
@@ -164,26 +164,26 @@ const resetPassword = async (email, newPassword) => {
   console.log("email:", email, "newPassword:", newPassword);
   try {
       const response = await functions.createExecution(
-          "67ad271600140f806142", // Replace with your Appwrite function ID
+          "67ad271600140f806142", 
           JSON.stringify({ email, newPassword }),
-          // false // This means it's not synchronous (set to `true` if you need immediate response)
+          // false 
       );
 
       if (response) {
           const result = JSON.parse(response.responseBody);
 
           if (result.success) {
-              console.log("✅ Password reset successfully:")
+              console.log(" Password reset successfully:")
               return { success: true, message: result.message };
           } else {
-              console.log("❌ Error:", result.message);
+              console.log(" Error:", result.message);
               return { success: false, message: "password should be at least 8 character" };
           }
 
           // return result;
       }
   } catch (error) {
-      console.error("❌ Error in resetPassword:", error);
+      console.error(" Error in resetPassword:", error);
       return { success: false, message: error.message };
   }
 }

@@ -29,8 +29,8 @@ export default {
       package: "com.abdullahdev.specialcare", // Moved package key to correct level
       "config": {
         "googleSignIn": {
-          "apiKey": "AIzaSyBBeBYqvW-6nXKKmCULCWryT9lbOB3rtOA", // Android API key from Google Cloud Console
-          "certificateHash": "BB:4F:83:C3:30:46:9F:FB:BA:58:B3:38:4F:B4:43:C4:47:63:C6:EF" // The SHA-1 hash 
+          "apiKey": process.env.GOOGLE_ANDROID_API_KEY, // Android API key from environment variables
+          "certificateHash": process.env.GOOGLE_CERTIFICATE_HASH // The SHA-1 hash from environment variables
         }
       }
       

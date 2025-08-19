@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dialogflow_service import detect_intent_texts
 from pydantic import BaseModel
@@ -15,7 +15,7 @@ app.add_middleware(
 
 class ChatRequest(BaseModel):
     message: str
-
+ #decorator to handle POST requests to the /chat endpoint
 @app.post("/chat")
 async def chat_endpoint(req: ChatRequest):
     reply = detect_intent_texts(req.message)

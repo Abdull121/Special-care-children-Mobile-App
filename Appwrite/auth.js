@@ -153,10 +153,10 @@ export class AuthService {
 
             // const currentAccount = await this.getAccount();
              //console.log("current Account",currentAccount)
-             if (!currentAccount) {
-                // console.log("No authenticated user found.");
-                return false;
-            }
+            //  if (!currentAccount) {
+            //     // console.log("No authenticated user found.");
+            //     return false;
+            // }
         
             const currentUser = await this.databases.listDocuments(
                 this.appwriteConfig.appwriteDatabaseId,
