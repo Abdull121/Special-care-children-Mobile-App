@@ -55,6 +55,13 @@ SpecialCare Guide is a mobile application built with **React Native (Expo)** and
 | Axios / Fetch |Apis | Expo router |
 
 
+## Demo
+
+
+
+https://github.com/user-attachments/assets/45920de2-9fe1-4aac-8206-df19ab1b6d94
+
+
 ## ⚙️ Installation
 
 ### 🧩 Prerequisites
