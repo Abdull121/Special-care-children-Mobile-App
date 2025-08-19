@@ -1,0 +1,17 @@
+# Commands to run in Google Cloud Shell or local gcloud CLI
+# Replace PROJECT_ID with your actual project ID: specialcare-oakt
+
+# Grant Dialogflow API Client role
+gcloud projects add-iam-policy-binding specialcare-oakt \
+    --member="serviceAccount:specialcare@specialcare-oakt.iam.gserviceaccount.com" \
+    --role="roles/dialogflow.client"
+
+# Grant Dialogflow API Reader role
+gcloud projects add-iam-policy-binding specialcare-oakt \
+    --member="serviceAccount:specialcare@specialcare-oakt.iam.gserviceaccount.com" \
+    --role="roles/dialogflow.reader"
+
+# Optional: Grant Dialogflow Console Agent Editor role (if you need to modify agents)
+gcloud projects add-iam-policy-binding specialcare-oakt \
+    --member="serviceAccount:specialcare@specialcare-oakt.iam.gserviceaccount.com" \
+    --role="roles/dialogflow.consoleAgentEditor"

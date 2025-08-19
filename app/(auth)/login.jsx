@@ -34,7 +34,7 @@ const login = () => {
   };
 
   const validatePassword = (password) => {
-    return password.length >= 8; //  Minimum 8 characters
+    return password.length >= 8; 
   };
 
   const handleSubmit = async () => {

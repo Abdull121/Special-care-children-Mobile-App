@@ -1,0 +1,10 @@
+# To set environment variable using Vercel CLI:
+# Make sure you're in the project directory, then run:
+
+vercel env add GOOGLE_CREDENTIALS_JSON
+
+# When prompted, paste the JSON string from the format_credentials_for_vercel.py output
+# Select "Production, Preview, and Development" for all environments
+# Then redeploy:
+
+vercel --prod

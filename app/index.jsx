@@ -16,10 +16,13 @@ import { Redirect, router } from "expo-router";
 import { useGlobalContext } from "../context/GlobalProvider";
 import React from "react";
 
+
 export default function Index() {
   const { loading, isLogged } = useGlobalContext();
 
   if (!loading && isLogged) return <Redirect href="/home" />;
+
+  
 
   return (
     <>
@@ -62,7 +65,8 @@ export default function Index() {
                 </Text>
                 <CustomButton
                   testID="get-started-button"
-                  handlePress={() => router.push("/login")}
+                  // handlePress={() => router.push("/login")}
+                  handlePress={() => router.push("/(auth)/login")}
                   title="Get Started"
                   textStyles="text-center text-black-Default text-[14px] font-psemibold"
                   container="mt-[41px] w-[231px] h-[42px] rounded-[4px] bg-white"

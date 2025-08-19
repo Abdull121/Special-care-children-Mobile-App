@@ -469,8 +469,8 @@ export class Service{
                   });
               
                   // Cloudinary configuration
-                  const cloudName = 'dunihnlan'; // ← Replace this
-                  const uploadPreset = 'specialcare_upload'; // ← Replace this
+                  const cloudName = 'dunihnlan'; // 
+                  const uploadPreset = 'specialcare_upload'; // 
               
                   const response = await fetch(
                     `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,

@@ -83,7 +83,7 @@ const useLocationServicesFetcher = (numToShow = 3) => {
         const fetchNearbySchools = async (lat, lon) => {
           try {
               const response = await axios.get(
-                  `https://maps.gomaps.pro/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=6000&type=school&keyword=${schoolsQuery}&key=${place_API}`
+                  `https://maps.gomaps.pro/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=15000&type=school&keyword=${schoolsQuery}&key=${place_API}`
               );
               const schoolData = response.data.results.map((element) => {
                   let name = element.name || "Child Specialist School";

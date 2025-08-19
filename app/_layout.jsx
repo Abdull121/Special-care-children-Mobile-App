@@ -50,6 +50,9 @@ const RootLayout = () => {
       <Stack.Screen name="(forgetPassword)" options={{ headerShown: false }} />
       <Stack.Screen name="(userProfile)" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="ChatScreen" options={{ headerShown: false }} />
+      
+  
      
       
       

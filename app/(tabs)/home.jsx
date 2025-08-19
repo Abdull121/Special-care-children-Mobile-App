@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView, Modal, ActivityIndicator, Alert } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import icons from "../../constants/icons";
 import TaskCard from "../../components/TaskCard";
 import CommunityCard from "../../components/CommunityCard";
 import ResourceCard from "../../components/ResourcesCard";
@@ -14,6 +13,7 @@ import useYouTubeVideoFetcher from "../../components/YoutubeVideos";
 import YouTubeVideoPreview from "../../components/VideoPreview";
 import {router} from "expo-router";
 import useGamesFetcher from "../../components/FetchGmaes";
+import ChatBotCard from "../../components/ChartbotCard";
 
 
 
@@ -31,6 +31,8 @@ import { useAuth} from '@clerk/clerk-expo';
 
 const Home = () => {
   const { user,setUser } = useGlobalContext();
+
+  const userName = user?.childName ||  "User";
  
 
   //get videos
@@ -403,6 +405,15 @@ const Home = () => {
           </View>
         ))
         }
+
+        {/* ChatBoat Card */}
+        
+        <ChatBotCard 
+        onPress={() => router.push('/ChatScreen')}
+        userName={userName.split(' ')[0]}
+        
+        />
+        
 
          {/* Community & Resources Sections */}
          <CommunityCard
