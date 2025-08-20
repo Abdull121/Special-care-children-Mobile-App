@@ -8,6 +8,13 @@
 SpecialCare Guide is a mobile application built with **React Native (Expo)** and **Appwrite with fast api** to support parents of children with mental health disorders such as Autism, ADHD, and Down Syndrome. The app offers personalized care tracking, educational resources, a supportive community, and medical assistance all in one place.
 ---
 
+## Promo
+
+
+https://github.com/user-attachments/assets/901e9fb5-cc34-44d1-88bf-01c54320e308
+
+
+
 ### 🟢 Onboarding
 - Welcome screen introduction
 - Email/phone/password Sign-Up & Log-In
