@@ -60,8 +60,8 @@ https://github.com/user-attachments/assets/901e9fb5-cc34-44d1-88bf-01c54320e308
 | React Native (Expo) | Appwrite (Database, Auth, Storage) | GitHub |
 | React Navigation | Appwrite Functions | Expo Eas Builds |
 | Axios / Fetch |Apis | Expo router |
-| DialogFlow | Chatbot |Apis |
-| Python | Fast Api |endPoints |
+|     | DialogFlow | Apis |
+|    | Python  |Fast Apis |
 | Clerk | Google OAuth |
 | Cloudinary | File Storage |
 
