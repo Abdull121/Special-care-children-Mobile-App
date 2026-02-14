@@ -98,3 +98,6 @@ This project is licensed under the MIT License
 Muhammad Abdullah
 Frontend Developer & Final-Year CS Student
 [LinkedIn](https://www.linkedin.com/in/abdullah121/) | [Portfolio](https://abdullahportfoliowebsite.netlify.app/)
+
+ [Available for freelance projects](https://www.fiverr.com/s/9956Nvd)
+
